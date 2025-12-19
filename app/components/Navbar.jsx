@@ -60,22 +60,30 @@ export default function Navbar() {
     <>
       <header
         className={[
-          "fixed left-0 right-0 z-50",
+          "fixed left-0 right-0 top-0 z-50",
           "transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
           mounted ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-6",
-          compact ? "top-3" : "top-0",
+          // Bar should only appear after scroll
+          compact
+            ? [
+                "bg-black/18", // reduced opacity
+                "backdrop-blur-md", // reduced blur
+                "border-b border-white/8",
+                "shadow-[0_10px_40px_rgba(0,0,0,0.25)]",
+              ].join(" ")
+            : "bg-transparent backdrop-blur-0 border-b border-transparent shadow-none",
         ].join(" ")}
       >
         <div className="mx-auto max-w-6xl px-1 py-4">
           <div className="relative flex items-center">
-            {/* Left logo (default/top state) */}
+            {/* Left logo */}
             <a
               href="#top"
               onClick={smoothJump}
               className={[
                 "flex items-center gap-3 -translate-x-4",
                 "transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                compact ? "opacity-0 -translate-y-2 pointer-events-none" : "opacity-100 translate-y-0",
+                "opacity-100 translate-y-0",
               ].join(" ")}
               aria-label="Home"
             >
@@ -86,35 +94,6 @@ export default function Navbar() {
                 className="h-12 w-auto select-none"
               />
             </a>
-
-            {/* Center logo pill (appears on scroll) */}
-            <div
-              className={[
-                "absolute left-1/2 -translate-x-1/2",
-                "transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                compact ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3 pointer-events-none",
-              ].join(" ")}
-            >
-              <a
-                href="#top"
-                onClick={smoothJump}
-                className={[
-                  "flex items-center gap-3",
-                  "rounded-full border border-white/15",
-                  "bg-white/[0.02] px-5 py-2",
-                  "backdrop-blur-2xl",
-                  "shadow-[0_10px_40px_rgba(0,0,0,0.35)]",
-                ].join(" ")}
-                aria-label="Home"
-              >
-                <img
-                  src="/esummit_logo.png"
-                  alt="E-Summit 26"
-                  draggable={false}
-                  className="h-10 w-auto select-none"
-                />
-              </a>
-            </div>
 
             {/* Right side controls */}
             <div className="ml-auto flex items-center gap-4 pr-5">
@@ -134,13 +113,16 @@ export default function Navbar() {
                 ))}
               </nav>
 
-              {/* Hamburger */}
+              {/* Hamburger (unchanged behavior) */}
               <button
                 type="button"
                 aria-label="Menu"
                 className={[
                   "inline-flex h-11 w-11 items-center justify-center",
-                  "rounded-full border border-white/15 bg-white/10 backdrop-blur-xl",
+                  // slightly softer when compact so it merges with bar nicely
+                  compact
+                    ? "rounded-full border border-white/12 bg-white/6 backdrop-blur-md"
+                    : "rounded-full border border-white/15 bg-white/10 backdrop-blur-xl",
                   "shadow-[0_10px_40px_rgba(0,0,0,0.35)]",
                   "transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
                   compact
@@ -160,7 +142,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Hover animation CSS */}
+      {/* Hover animation CSS (unchanged) */}
       <style jsx global>{`
         .rb-pill {
           position: relative;

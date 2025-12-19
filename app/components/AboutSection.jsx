@@ -31,9 +31,9 @@ export default function AboutSection() {
 
     const icons = useMemo(
         () => [
-            { img: "/triangle.png", alt: "Triangle" },
+            { img: "/Triangle.png", alt: "Triangle" },
             { img: "/Cube.png", alt: "Cube" },
-            { img: "/stack.png", alt: "Stack" },
+            { img: "/Stack.png", alt: "Stack" },
         ],
         []
     );
