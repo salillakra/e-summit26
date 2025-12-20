@@ -3,6 +3,7 @@ import Hero from "./components/Hero";
 import AboutSection from "./components/AboutSection";
 import ForWhomSection from "./components/ForWhomSection";
 import SpeakersSection from "./components/SpeakersSection";
+import FooterSection from "./components/FooterSection";
 import { domAnimation, LazyMotion } from "framer-motion";
 
 export default function Page() {
@@ -13,6 +14,7 @@ export default function Page() {
         <AboutSection />
         <ForWhomSection />
         <SpeakersSection />
+        <FooterSection />
       </LazyMotion>
       <Navbar />
     </div>
