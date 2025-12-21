@@ -145,25 +145,25 @@ export default function FooterSection() {
           <div className="absolute -left-40 -top-40 h-[400px] w-[400px] rounded-full bg-[#B05EC2]/16 blur-[120px]" />
         </div>
 
-        {/* Watermark logo */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1]">
-          <div className="relative mx-auto h-[40vh] max-w-[1400px]">
-            <Image
-              src="/esummit_logo.png"
-              alt=""
-              fill
-              className="object-contain opacity-[0.8] mix-blend-screen"
-              priority
-            />
-          </div>
-        </div>
-
-        {/* Copyright Content */}
-        <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-6 pb-10 pt-20">
+        {/* Copyright Content - Moved above the logo */}
+        <div className="relative z-10 mx-auto max-w-7xl px-6 pt-10">
           <div className="flex flex-col gap-6 text-sm text-white/90 md:flex-row md:items-center md:justify-between">
             <div>All copyrights @2025 EDC, BIT Mesra</div>
             <div className="md:text-right">Designed By Team EDC</div>
           </div>
+        </div>
+
+        {/* Full width logo - Updated to be full width */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[45vh] w-full">
+          <Image
+            src="/esummit_logo.png"
+            alt="E-Summit Logo"
+            fill
+            className="object-contain object-bottom opacity-[0.8] mix-blend-screen"
+            priority
+            sizes="100vw"
+            style={{ width: '100%' }}
+          />
         </div>
       </div>
     </footer>
