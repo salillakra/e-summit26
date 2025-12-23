@@ -13,7 +13,13 @@ const LINKS: NavLink[] = [
   { label: "Contact", href: "/contact" },
 ];
 
-function NavPill({ href, children }: { href: string; children: React.ReactNode }) {
+function NavPill({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   return (
     <Link
       href={href}
@@ -86,7 +92,10 @@ export default function FooterSection() {
           </div>
 
           {/* Desktop pills aligned to icon row */}
-          <nav className="hidden md:flex items-center gap-3 mt-4" aria-label="Footer navigation">
+          <nav
+            className="hidden md:flex items-center gap-3 mt-4"
+            aria-label="Footer navigation"
+          >
             {LINKS.map((l) => (
               <NavPill key={l.href} href={l.href}>
                 {l.label}
@@ -96,7 +105,10 @@ export default function FooterSection() {
         </div>
 
         {/* Mobile pills */}
-        <nav className="mt-8 flex flex-wrap gap-3 md:hidden" aria-label="Footer navigation mobile">
+        <nav
+          className="mt-8 flex flex-wrap gap-3 md:hidden"
+          aria-label="Footer navigation mobile"
+        >
           {LINKS.map((l) => (
             <NavPill key={l.href} href={l.href}>
               {l.label}
@@ -116,7 +128,8 @@ export default function FooterSection() {
             style={{
               width: "90vh",
               height: "90vw",
-              transform: "translate(-50%, -50%) rotate(90deg) scale(1.1) translateZ(0)",
+              transform:
+                "translate(-50%, -50%) rotate(90deg) scale(1.1) translateZ(0)",
               transformOrigin: "center",
               willChange: "transform",
             }}
@@ -127,7 +140,6 @@ export default function FooterSection() {
               fill
               priority
               sizes="100vw"
-              quality={90}
               className="object-cover"
               style={{
                 filter: "brightness(1.12) contrast(1.05) saturate(1.10)",
@@ -162,7 +174,7 @@ export default function FooterSection() {
             className="object-contain object-bottom opacity-[0.8] mix-blend-screen"
             priority
             sizes="100vw"
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
           />
         </div>
       </div>
