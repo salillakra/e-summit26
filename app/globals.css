@@ -3,6 +3,32 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+body,
+html {
+  @apply overflow-x-hidden;
+}
+
 body {
   @apply font-['Inter',ui-sans-serif,system-ui] antialiased;
 }
