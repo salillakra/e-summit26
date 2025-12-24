@@ -1,7 +1,6 @@
-// app/components/Questions.tsx
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, Minus } from "lucide-react";
 import AnimatedBlurText from "./AnimatedBlurText";
 
@@ -38,7 +37,7 @@ export default function Questions() {
     []
   );
 
-  const [openIdx, setOpenIdx] = useState<number>(0);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
     <section id="questions" className="w-full bg-black text-white">
@@ -66,7 +65,7 @@ export default function Questions() {
               "
             >
               <AnimatedBlurText
-                lines={["All the Important", "Details Before Attending",""]}
+                lines={["All the Important", "Details Before Attending", ""]}
                 liteText="E-Summit'26"
               />
             </h2>
@@ -84,7 +83,7 @@ export default function Questions() {
                   className={[
                     "rounded-2xl",
                     "border border-white/10",
-                    "bg-gradient-to-br from-white/[0.04] to-white/[0.02]",
+                    "bg-linear-to-br from-white/4 to-white/2",
                     "shadow-[0_28px_100px_rgba(0,0,0,0.8)]",
                     "backdrop-blur-xl",
                     "transition-all duration-300",
@@ -95,7 +94,7 @@ export default function Questions() {
                     type="button"
                     onClick={() => setOpenIdx(open ? -1 : idx)}
                     className={[
-                      "w-full",
+                      "w-full cursor-pointer",
                       "px-8 py-7",
                       "flex items-center justify-between gap-8",
                       "text-left",
@@ -120,10 +119,10 @@ export default function Questions() {
                         "shrink-0",
                         "grid place-items-center",
                         "h-14 w-14 rounded-full",
-                        "bg-white/[0.08] border border-white/15",
+                        "bg-white/8 border border-white/15",
                         "transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                        open ? "bg-white/[0.15] border-white/25" : "",
-                        "hover:bg-white/[0.12]",
+                        open ? "bg-white/15 border-white/25" : "",
+                        "hover:bg-white/12",
                       ].join(" ")}
                     >
                       <span className="relative h-6 w-6">
