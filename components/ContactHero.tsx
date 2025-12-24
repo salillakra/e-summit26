@@ -1,12 +1,25 @@
 "use client";
 
 import Silk from "@/components/Silk";
-import { m } from "framer-motion";
+import { m, useInView, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import { usePathname } from "next/navigation";
 
 export default function ContactHero() {
+  const prefersReducedMotion = useReducedMotion();
+  const pathname = usePathname();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const isInView = useInView(sectionRef, { amount: 0.6 });
+  const silkActive = pathname === "/contact" && isInView;
+  const silkDpr: [number, number] = prefersReducedMotion ? [1, 1] : [1, 1.25];
+  const silkMaxFps = prefersReducedMotion ? undefined : 30;
+  const silkFrameloop = prefersReducedMotion ? "demand" : "always";
   const title = "CONTACT";
   return (
-    <section className="relative w-full overflow-hidden bg-black text-white">
+    <section
+      ref={sectionRef}
+      className="relative w-full overflow-hidden bg-black text-white"
+    >
       {/* Responsive height: 1/4 on mobile, 3/4 on desktop */}
       <div className="relative h-[25svh] md:h-[75svh] w-full">
         {/* Silk background */}
@@ -17,11 +30,15 @@ export default function ContactHero() {
             color="#7d2da3"
             noiseIntensity={1.35}
             rotation={0.12}
+            dpr={silkDpr}
+            frameloop={silkFrameloop}
+            maxFps={silkMaxFps}
+            active={silkActive}
           />
         </div>
 
         {/* Vignette + contrast overlays to match the screenshot feel */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-black/80" />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/35 via-black/10 to-black/80" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1200px_600px_at_78%_55%,rgba(255,255,255,0.22),transparent_60%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_520px_at_20%_70%,rgba(176,94,194,0.35),transparent_65%)]" />
 
@@ -73,7 +90,7 @@ export default function ContactHero() {
         </div>
 
         {/* Hard bottom edge like screenshot (subtle) */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-black" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-b from-transparent to-black" />
       </div>
     </section>
   );
