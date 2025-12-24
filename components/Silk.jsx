@@ -70,7 +70,7 @@ void main() {
 }
 `;
 
-const SilkPlane = forwardRef(function SilkPlane({ uniforms }, ref) {
+const SilkPlane = forwardRef(function SilkPlane({ uniforms, active }, ref) {
   const { viewport } = useThree();
 
   useLayoutEffect(() => {
@@ -80,7 +80,7 @@ const SilkPlane = forwardRef(function SilkPlane({ uniforms }, ref) {
   }, [ref, viewport]);
 
   useFrame((_, delta) => {
-    if (!ref.current) return;
+    if (!ref.current || !active) return;
     ref.current.material.uniforms.uTime.value += 0.1 * delta;
   });
 
@@ -136,6 +136,7 @@ function DemandFps({ active, fps }) {
  * @property {number | [number, number]=} dpr
  * @property {"always" | "demand" | "never"=} frameloop
  * @property {number=} maxFps
+ * @property {boolean=} active
  */
 
 /** @type {import('react').FC<SilkProps>} */
@@ -149,8 +150,10 @@ const TypedSilk = (props) => {
     dpr = [1, 2],
     frameloop = "always",
     maxFps,
+    active = true,
   } = props;
 
+  const isActive = active !== false;
   const meshRef = useRef();
 
   const uniforms = useMemo(
@@ -165,20 +168,27 @@ const TypedSilk = (props) => {
     [speed, scale, noiseIntensity, color, rotation]
   );
 
+  const limitFps =
+    isActive &&
+    typeof maxFps === "number" &&
+    Number.isFinite(maxFps) &&
+    maxFps > 0;
+
+  const canvasFrameloop = !isActive
+    ? "demand"
+    : limitFps
+    ? "demand"
+    : frameloop;
+
   return (
     <Canvas
       dpr={dpr}
-      frameloop={
-        typeof maxFps === "number" && maxFps > 0 ? "demand" : frameloop
-      }
+      frameloop={canvasFrameloop}
       gl={{ antialias: false, powerPreference: "high-performance" }}
       performance={{ min: 0.5 }}
     >
-      <DemandFps
-        active={typeof maxFps === "number" && maxFps > 0}
-        fps={typeof maxFps === "number" && maxFps > 0 ? maxFps : 60}
-      />
-      <SilkPlane ref={meshRef} uniforms={uniforms} />
+      <DemandFps active={limitFps} fps={limitFps ? maxFps : 60} />
+      <SilkPlane ref={meshRef} uniforms={uniforms} active={isActive} />
     </Canvas>
   );
 };
