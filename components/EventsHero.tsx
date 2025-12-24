@@ -2,13 +2,25 @@
 
 import Silk from "@/components/Silk";
 import { cn } from "@/lib/utils";
-import { m, useReducedMotion } from "framer-motion";
+import { m, useInView, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import { usePathname } from "next/navigation";
 
 export default function AgendaHero() {
   const prefersReducedMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const pathname = usePathname();
+  const isInView = useInView(sectionRef, { amount: 0.6 });
+  const silkActive = pathname === "/events" && isInView;
+  const silkDpr: [number, number] = prefersReducedMotion ? [1, 1] : [1, 1.25];
+  const silkFrameloop = prefersReducedMotion ? "demand" : "always";
+  const silkMaxFps = prefersReducedMotion ? undefined : 30;
   const title = "AGENDA";
   return (
-    <section className="relative w-full overflow-hidden bg-black text-white">
+    <section
+      ref={sectionRef}
+      className="relative w-full overflow-hidden bg-black text-white"
+    >
       {/* Responsive height: 1/4 on mobile, 3/4 on desktop */}
       <div className="relative h-[25svh] md:h-[75svh] w-full">
         {/* Silk background */}
@@ -19,9 +31,10 @@ export default function AgendaHero() {
             color="#7d2da3"
             noiseIntensity={1.35}
             rotation={0.12}
-            dpr={prefersReducedMotion ? [1, 1] : [1, 1.25]}
-            frameloop={prefersReducedMotion ? "demand" : "always"}
-            maxFps={prefersReducedMotion ? undefined : 30}
+            dpr={silkDpr}
+            frameloop={silkFrameloop}
+            maxFps={silkMaxFps}
+            active={silkActive}
           />
         </div>
 
