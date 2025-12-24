@@ -6,7 +6,7 @@ import ContactUs from "@/components/ContactUs";
 import { domAnimation, LazyMotion } from "framer-motion";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Contact | E-Summit 2026",
   description:
     "Contact the E-Summit 2026 team (EDC BIT Mesra) for partnerships, sponsorships, speaker queries, or general support.",
   alternates: {

@@ -10,28 +10,6 @@ import Sponsorship from "@/components/Sponsorship";
 import Questions from "@/components/Questions";
 import { domAnimation, LazyMotion } from "framer-motion";
 
-export const metadata: Metadata = {
-  title: "Home",
-  description:
-    "E-Summit 2026 by EDC BIT Mesra — a flagship entrepreneurship summit featuring speakers, events, networking, and startup opportunities.",
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    type: "website",
-    url: "/",
-    title: "E-Summit 2026 | EDC BIT Mesra",
-    description:
-      "E-Summit 2026 by EDC BIT Mesra — speakers, events, networking, and startup opportunities.",
-  },
-  twitter: {
-    card: "summary",
-    title: "E-Summit 2026 | EDC BIT Mesra",
-    description:
-      "E-Summit 2026 by EDC BIT Mesra — speakers, events, networking, and startup opportunities.",
-  },
-};
-
 export default function Page() {
   return (
     <div className="isolate">

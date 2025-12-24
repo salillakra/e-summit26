@@ -6,7 +6,7 @@ import VenueReveal from "@/components/VenueReveal";
 import { domAnimation, LazyMotion } from "framer-motion";
 
 export const metadata: Metadata = {
-  title: "Venue",
+  title: "Venue | E-Summit 2026",
   description:
     "Find the E-Summit 2026 venue details at BIT Mesra — location, directions, and on-ground information for attendees.",
   alternates: {

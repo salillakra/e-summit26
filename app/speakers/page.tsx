@@ -7,7 +7,7 @@ import PastSpeakersGrid from "@/components/PastSpeakersGrid";
 import { domAnimation, LazyMotion } from "framer-motion";
 
 export const metadata: Metadata = {
-  title: "Speakers",
+  title: "Speakers | E-Summit 2026",
   description:
     "Meet the speakers and past speakers of E-Summit 2026 — founders, investors, creators, and leaders sharing actionable insights.",
   alternates: {
