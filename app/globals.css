@@ -24,11 +24,6 @@ html.lenis body {
   pointer-events: none;
 }
 
-body,
-html {
-  @apply overflow-x-hidden;
-}
-
 body {
   @apply font-['Inter',ui-sans-serif,system-ui] antialiased;
 }
