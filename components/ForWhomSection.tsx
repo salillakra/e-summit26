@@ -72,8 +72,7 @@ function Marquee({ className = "" }) {
           animation: marquee 18s linear infinite;
         }
         .marquee-text {
-          font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI,
-            Roboto, Helvetica, Arial;
+          font-family: var(--font-google-sans), sans-serif;
           font-weight: 600;
           color: rgba(255, 255, 255, 0.9);
           font-size: clamp(48px, 7vw, 102px);
@@ -202,10 +201,7 @@ function AudienceCard({ item, active, onClick }: AudienceCardProps) {
           variants={LABEL_VARIANTS}
           animate={active ? "active" : "inactive"}
           transition={TRANSITION_CONFIG.icon}
-          className={cn(
-            "text-sm sm:text-base font-medium",
-            "font-['Inter',ui-sans-serif,system-ui]"
-          )}
+          className={cn("text-sm sm:text-base font-medium", "font-sans")}
           style={{ willChange: "color" }}
         >
           {item.label}
@@ -274,7 +270,7 @@ export default function ForWhomSection() {
             "mt-6",
             "text-4xl sm:text-5xl md:text-6xl",
             "font-semibold tracking-tight",
-            "font-['Inter',ui-sans-serif,system-ui]"
+            "font-sans"
           )}
         >
           <AnimatedBlurText
@@ -299,7 +295,7 @@ export default function ForWhomSection() {
         <div className="mt-8 rounded-2xl border border-white/10 bg-white/3 px-5 py-4 sm:px-6 sm:py-5">
           <div
             aria-label={active.desc}
-            className="text-sm sm:text-base text-white/80 leading-relaxed font-['Inter',ui-sans-serif,system-ui]"
+            className="text-sm sm:text-base text-white/80 leading-relaxed font-sans"
           >
             <motion.p
               key={active.key}

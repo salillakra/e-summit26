@@ -51,7 +51,7 @@ export default function AgendaHero() {
               aria-label="AGENDA"
               className={cn(
                 "select-none",
-                "font-['Inter',ui-sans-serif,system-ui]",
+                "font-sans",
                 "font-extrabold",
                 "-tracking-widest",
                 "text-white",

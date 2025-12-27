@@ -50,7 +50,7 @@ export default function ContactHero() {
             <h1
               className={cn(
                 "select-none",
-                "font-['Inter',ui-sans-serif,system-ui]",
+                "font-sans",
                 "font-extrabold",
                 "lg:tracking-[-1.2rem] tracking-tighter",
                 "text-white",

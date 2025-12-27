@@ -105,7 +105,7 @@ export default function PastSpeakersGrid() {
         <h2
           className="
             mt-6
-            font-['Inter',ui-sans-serif,system-ui]
+            font-sans
             text-4xl sm:text-5xl md:text-6xl
             leading-[1.05]
             tracking-tight

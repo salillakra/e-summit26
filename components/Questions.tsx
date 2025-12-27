@@ -54,7 +54,7 @@ export default function Questions() {
             <h2
               className="
                 mt-6 sm:mt-8
-                font-['Inter',ui-sans-serif,system-ui]
+                font-sans
                 text-3xl sm:text-4xl md:text-5xl lg:text-6xl
                 leading-[1.06]
                 tracking-tight
@@ -101,7 +101,7 @@ export default function Questions() {
                   >
                     <div
                       className={cn(
-                        "font-['Inter',ui-sans-serif,system-ui]",
+                        "font-sans",
                         "text-sm sm:text-base md:text-lg lg:text-xl",
                         "font-bold tracking-tight",
                         "leading-tight",
@@ -163,7 +163,7 @@ export default function Questions() {
                       <div className="px-4 sm:px-6 md:px-8 pb-5 sm:pb-6 md:pb-8 -mt-2">
                         <p
                           className="
-                            font-['Inter',ui-sans-serif,system-ui]
+                            font-sans
                             text-sm sm:text-base
                             leading-relaxed
                             text-white/70

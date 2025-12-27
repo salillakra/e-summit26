@@ -5,6 +5,7 @@ import Silk from "./Silk";
 import Image from "next/image";
 import { motion, Variants } from "framer-motion";
 import ShinyText from "./ShinyText";
+import { cn } from "@/lib/utils";
 
 // Extract animation variants
 const CHAR_VARIANTS: Variants = {
@@ -141,14 +142,13 @@ export default function Hero() {
 
         {/* Subtitle with animated word */}
         <div
-          className={[
+          className={cn(
             "mt-8",
             "text-[22px] sm:text-[28px] md:text-[36px]",
             "text-white/90",
             "tracking-tight md::translate-x-8",
-            "flex flex-col md:block items-center",
-            "font-['Inter',ui-sans-serif,system-ui]",
-          ].join(" ")}
+            "flex flex-col md:block items-center"
+          )}
         >
           <span className="font-medium">Fuel your startup journey by:</span>{" "}
           <span className="inline-flex justify-start align-baseline">

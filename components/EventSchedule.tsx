@@ -70,7 +70,7 @@ function DayStickyBar({
                 "text-white font-bold tracking-tight",
                 "rounded-l-2xl",
                 "bg-linear-to-r from-[#71008A] to-[#8b2aa8]",
-                "font-['Inter',ui-sans-serif,system-ui]",
+                "font-sans",
                 "text-sm sm:text-xl"
               )}
             >
@@ -88,7 +88,7 @@ function DayStickyBar({
               "flex items-center px-4 sm:px-8 md:px-10"
             )}
           >
-            <div className="text-white/95 font-medium tracking-tight font-['Inter',ui-sans-serif,system-ui] text-sm sm:text-xl">
+            <div className="text-white/95 font-medium tracking-tight font-sans text-sm sm:text-xl">
               {rightLabel}
             </div>
           </div>
@@ -110,9 +110,7 @@ function SpeakerChip({ img, name, role }: Speaker) {
         className="h-14 w-14 rounded-full object-cover ring-2 ring-white/15"
       />
       <div className="leading-tight">
-        <div className="text-lg font-bold text-white/95 font-['Inter',ui-sans-serif,system-ui]">
-          {name}
-        </div>
+        <div className="text-lg font-bold text-white/95 font-sans">{name}</div>
         <div className="text-sm text-white/65">{role}</div>
       </div>
     </div>
@@ -133,7 +131,7 @@ function PanelPeople({ people }: { people: PanelPerson[] }) {
             className="h-14 w-14 rounded-xl object-cover ring-2 ring-white/15"
           />
           <div className="leading-tight">
-            <div className="text-base font-bold text-white/90 font-['Inter',ui-sans-serif,system-ui]">
+            <div className="text-base font-bold text-white/90 font-sans">
               {p.name}
             </div>
             <div className="text-sm text-white/60">{p.role}</div>
@@ -157,7 +155,7 @@ function EventCard({ item }: { item: EventItem }) {
         "backdrop-blur-sm",
       ].join(" ")}
     >
-      <div className="text-white/95 font-bold tracking-tight text-xl sm:text-2xl font-['Inter',ui-sans-serif,system-ui]">
+      <div className="text-white/95 font-bold tracking-tight text-xl sm:text-2xl font-sans">
         {item.title}
       </div>
 
@@ -334,7 +332,7 @@ export default function EventSchedule() {
         <h2
           className={[
             "mt-6",
-            "font-['Inter',ui-sans-serif,system-ui]",
+            "font-sans",
             "text-4xl sm:text-5xl md:text-6xl",
             "leading-[1.08] tracking-tight",
             "font-bold",
@@ -366,7 +364,7 @@ export default function EventSchedule() {
                       "items-start",
                     ].join(" ")}
                   >
-                    <div className="text-white/80 text-base sm:text-lg tracking-tight pt-3 font-['Inter',ui-sans-serif,system-ui] font-medium">
+                    <div className="text-white/80 text-base sm:text-lg tracking-tight pt-3 font-sans font-medium">
                       {ev.time}
                     </div>
 

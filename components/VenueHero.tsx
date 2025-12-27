@@ -49,15 +49,15 @@ export default function VenueHero() {
             <h1
               className={cn(
                 "select-none",
-                "font-['Inter',ui-sans-serif,system-ui]",
+                "font-sans",
                 "font-extrabold",
                 "lg:tracking-[-1.2rem] tracking-tighter",
                 "text-white",
                 // Responsive text size
                 "text-[clamp(48px,14vw,205px)]",
                 // Responsive line height
-                "leading-[0.82] md:leading-[0.84]",
-             )}
+                "leading-[0.82] md:leading-[0.84]"
+              )}
               style={{
                 textShadow:
                   "0 0 34px rgba(255,255,255,0.12), 0 0 90px rgba(176,94,194,0.12)",
