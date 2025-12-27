@@ -4,6 +4,7 @@ import Silk from "@/components/Silk";
 import { m, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export default function ContactHero() {
   const prefersReducedMotion = useReducedMotion();
@@ -47,17 +48,17 @@ export default function ContactHero() {
           {/* Use items-end and a tiny pb so baseline kisses the floor */}
           <div className="flex h-full items-end justify-center pb-0">
             <h1
-              className={[
+              className={cn(
                 "select-none",
                 "font-['Inter',ui-sans-serif,system-ui]",
                 "font-extrabold",
-                "tracking-[-1.2rem]",
+                "lg:tracking-[-1.2rem] tracking-tighter",
                 "text-white",
                 // Responsive text size
                 "text-[clamp(48px,14vw,205px)]",
                 // Responsive line height
-                "leading-[0.82] md:leading-[0.84]",
-              ].join(" ")}
+                "leading-[0.82] md:leading-[0.84]"
+              )}
               style={{
                 textShadow:
                   "0 0 34px rgba(255,255,255,0.12), 0 0 90px rgba(176,94,194,0.12)",
