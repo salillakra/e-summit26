@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
   // Rewrites to support PostHog ingestion and assets
   async rewrites() {
     return [
