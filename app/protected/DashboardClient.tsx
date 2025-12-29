@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Silk from "@/components/Silk";
@@ -249,7 +249,7 @@ export default function DashboardClient({ user, profile }: { user: UserDTO; prof
                     </div>
 
                     <div className="mt-4">
-                        <AnimatedBlurText lines={["Welcome back,"]} liteText={user.displayName} />
+                        <AnimatedBlurText lines={["Welcome back, "]} liteText={user.displayName} />
                         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">
                             Manage your E-Summit team, track points, and view your participation status. Team creation uses a short code
                             that others can request to join, and leaders approve requests.
