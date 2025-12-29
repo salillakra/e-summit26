@@ -1,28 +1,44 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from "@/lib/supabase/server";
+
+type TeamRegistration = {
+  id: string;
+  registered_at: string;
+  teams: {
+    id: string;
+    name: string;
+    slug: string;
+    team_leader_id: string;
+  };
+  event_results?: Array<{
+    rank: number;
+    marks: number;
+    declared_at: string;
+  }>;
+};
 
 export async function getAdminStats() {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   // Total onboarded users
   const { count: onboardedCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true })
-    .eq('onboarding_completed', true);
+    .from("profiles")
+    .select("*", { count: "exact", head: true })
+    .eq("onboarding_completed", true);
 
   // Total registrations
   const { count: registrationsCount } = await supabase
-    .from('event_registrations')
-    .select('*', { count: 'exact', head: true });
+    .from("event_registrations")
+    .select("*", { count: "exact", head: true });
 
   // Total teams
   const { count: teamsCount } = await supabase
-    .from('teams')
-    .select('*', { count: 'exact', head: true });
+    .from("teams")
+    .select("*", { count: "exact", head: true });
 
   // Total events
   const { count: eventsCount } = await supabase
-    .from('events')
-    .select('*', { count: 'exact', head: true });
+    .from("events")
+    .select("*", { count: "exact", head: true });
 
   return {
     onboardedUsers: onboardedCount || 0,
@@ -33,11 +49,12 @@ export async function getAdminStats() {
 }
 
 export async function getEventRegistrations() {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   const { data, error } = await supabase
-    .from('event_registrations')
-    .select(`
+    .from("event_registrations")
+    .select(
+      `
       id,
       registered_at,
       events (
@@ -52,11 +69,12 @@ export async function getEventRegistrations() {
         slug,
         team_leader_id
       )
-    `)
-    .order('registered_at', { ascending: false });
+    `
+    )
+    .order("registered_at", { ascending: false });
 
   if (error) {
-    console.error('Error fetching event registrations:', error);
+    console.error("Error fetching event registrations:", error);
     return [];
   }
 
@@ -64,11 +82,9 @@ export async function getEventRegistrations() {
 }
 
 export async function getEventStats() {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
-  const { data, error } = await supabase
-    .from('events')
-    .select(`
+  const { data, error } = await supabase.from("events").select(`
       id,
       name,
       category,
@@ -79,23 +95,25 @@ export async function getEventStats() {
     `);
 
   if (error) {
-    console.error('Error fetching event stats:', error);
+    console.error("Error fetching event stats:", error);
     return [];
   }
 
-  return data?.map((event) => ({
-    ...event,
-    registrationCount: event.event_registrations?.[0]?.count || 0,
-  })) || [];
+  return (
+    data?.map((event) => ({
+      ...event,
+      registrationCount: event.event_registrations?.[0]?.count || 0,
+    })) || []
+  );
 }
 
 export async function getEventDetails(eventId: string) {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   const { data: event, error: eventError } = await supabase
-    .from('events')
-    .select('*')
-    .eq('id', eventId)
+    .from("events")
+    .select("*")
+    .eq("id", eventId)
     .single();
 
   if (eventError || !event) {
@@ -103,8 +121,9 @@ export async function getEventDetails(eventId: string) {
   }
 
   const { data: registrations, error: regError } = await supabase
-    .from('event_registrations')
-    .select(`
+    .from("event_registrations")
+    .select(
+      `
       id,
       registered_at,
       teams!inner (
@@ -118,26 +137,40 @@ export async function getEventDetails(eventId: string) {
         marks,
         declared_at
       )
-    `)
-    .eq('event_id', eventId)
-    .order('registered_at', { ascending: false });
+    `
+    )
+    .eq("event_id", eventId)
+    .order("registered_at", { ascending: false });
 
   if (regError) {
-    console.error('Error fetching registrations:', regError);
+    console.error("Error fetching registrations:", regError);
     return { event, registrations: [] };
   }
 
+  interface EventRegistrationData {
+    id: string;
+    registered_at: string;
+    teams: unknown;
+    event_results: Array<{
+      rank: number;
+      marks: number;
+      declared_at: string;
+    }>;
+  }
+
   // Transform the data to match the expected type
-  const transformedRegistrations = (registrations || []).map((reg: any) => ({
+  const transformedRegistrations: TeamRegistration[] = (
+    registrations || []
+  ).map((reg: EventRegistrationData) => ({
     id: reg.id,
     registered_at: reg.registered_at,
     teams: Array.isArray(reg.teams) ? reg.teams[0] : reg.teams,
     event_results: reg.event_results || [],
   }));
 
-  return { 
-    event, 
-    registrations: transformedRegistrations
+  return {
+    event,
+    registrations: transformedRegistrations,
   };
 }
 
@@ -147,23 +180,26 @@ export async function saveEventResult(
   rank: number,
   marks: number
 ) {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   const { data, error } = await supabase
-    .from('event_results')
-    .upsert({
-      event_id: eventId,
-      team_id: teamId,
-      rank,
-      marks,
-      declared_at: new Date().toISOString(),
-    }, {
-      onConflict: 'event_id,team_id'
-    })
+    .from("event_results")
+    .upsert(
+      {
+        event_id: eventId,
+        team_id: teamId,
+        rank,
+        marks,
+        declared_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "event_id,team_id",
+      }
+    )
     .select();
 
   if (error) {
-    console.error('Error saving event result:', error);
+    console.error("Error saving event result:", error);
     throw error;
   }
 
@@ -171,16 +207,16 @@ export async function saveEventResult(
 }
 
 export async function deleteEventResult(eventId: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   const { error } = await supabase
-    .from('event_results')
+    .from("event_results")
     .delete()
-    .eq('event_id', eventId)
-    .eq('team_id', teamId);
+    .eq("event_id", eventId)
+    .eq("team_id", teamId);
 
   if (error) {
-    console.error('Error deleting event result:', error);
+    console.error("Error deleting event result:", error);
     throw error;
   }
 
@@ -188,17 +224,10 @@ export async function deleteEventResult(eventId: string, teamId: string) {
 }
 
 export async function getAllEvents() {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .order('name');
+  const { data } = await supabase.from("events").select("*").order("name");
 
-  if (error) {
-    console.error('Error fetching events:', error);
-    return [];
-  }
-
+  console.log("getAllEvents data:", data);
   return data || [];
 }
