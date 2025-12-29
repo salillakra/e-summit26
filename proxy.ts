@@ -7,8 +7,8 @@ function shouldRefreshSession(pathname: string) {
   // Keeps public pages fast and prevents "auth page won't load" when Supabase is timing out.
   return (
     pathname.startsWith("/auth") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/protected") ||
     pathname.startsWith("/api") // keep if your API routes rely on cookies in dev
   );
 }
