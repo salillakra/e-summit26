@@ -35,11 +35,7 @@ type User = {
   whatsapp_no: string;
   onboarding_completed: boolean;
   created_at: string;
-  user_role?: {
-    roles: {
-      name: string;
-    };
-  };
+  role: string;
 };
 
 interface UsersDataTableProps {
@@ -60,17 +56,19 @@ const createColumns = (): ColumnDef<User>[] => [
         </Button>
       );
     },
-    cell: ({ getValue }) => {
-      return <div className="font-medium">{getValue() as string}</div>;
+    cell: ({ row }) => {
+      const value = row.original.roll_no;
+      return <div className="font-medium">{value || "N/A"}</div>;
     },
   },
   {
     accessorKey: "branch" as const,
     header: "Branch",
-    cell: ({ getValue }) => {
+    cell: ({ row }) => {
+      const value = row.original.branch;
       return (
         <Badge variant="outline" className="capitalize">
-          {getValue() as string}
+          {value || "N/A"}
         </Badge>
       );
     },
@@ -78,18 +76,24 @@ const createColumns = (): ColumnDef<User>[] => [
   {
     accessorKey: "phone" as const,
     header: "Phone",
-    cell: ({ getValue }) => <div>{getValue() as string}</div>,
+    cell: ({ row }) => {
+      const value = row.original.phone;
+      return <div>{value || "N/A"}</div>;
+    },
   },
   {
     accessorKey: "whatsapp_no" as const,
     header: "WhatsApp",
-    cell: ({ getValue }) => <div>{getValue() as string}</div>,
+    cell: ({ row }) => {
+      const value = row.original.phone;
+      return <div>{value || "N/A"}</div>;
+    },
   },
   {
     accessorKey: "onboarding_completed" as const,
     header: "Onboarded",
-    cell: ({ getValue }) => {
-      const completed = getValue() as boolean;
+    cell: ({ row }) => {
+      const completed = row.original.onboarding_completed || false;
       return completed ? (
         <Badge variant="default" className="bg-green-500">
           <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -105,10 +109,10 @@ const createColumns = (): ColumnDef<User>[] => [
   },
   {
     id: "role",
-    accessorFn: (row) => row.user_role?.roles?.name || "user",
+    // No need for accessorFn since we're accessing directly in the cell renderer
     header: "Role",
-    cell: ({ getValue }) => {
-      const role = getValue() as string;
+    cell: ({ row }) => {
+      const role = row.original.role || "user";
       const roleColors: Record<string, string> = {
         admin: "bg-red-500 text-white",
         moderator: "bg-blue-500 text-white",
@@ -132,9 +136,15 @@ const createColumns = (): ColumnDef<User>[] => [
         </Button>
       );
     },
-    cell: ({ getValue }) => {
-      const date = new Date(getValue() as string);
-      return <div>{date.toLocaleDateString()}</div>;
+    cell: ({ row }) => {
+      const dateValue = row.original.created_at;
+      if (!dateValue) return <div>N/A</div>;
+      const date = new Date(dateValue);
+      return (
+        <div>
+          {isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString()}
+        </div>
+      );
     },
   },
 ];
@@ -147,9 +157,21 @@ export function UsersDataTable({ users }: UsersDataTableProps) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
+  const columns = React.useMemo(() => createColumns(), []);
+
+  // Ensure users is always an array
+  const tableData = React.useMemo(() => {
+    if (!users) {
+      console.log("No users data provided");
+      return [];
+    }
+    console.log("Table data:", users);
+    return users;
+  }, [users]);
+
   const table = useReactTable({
-    data: users,
-    columns: createColumns(),
+    data: tableData,
+    columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -163,6 +185,10 @@ export function UsersDataTable({ users }: UsersDataTableProps) {
       columnVisibility,
     },
   });
+
+  if (!users || users.length === 0) {
+    return <div>No users found</div>;
+  }
 
   return (
     <div className="w-full space-y-4">
@@ -188,8 +214,7 @@ export function UsersDataTable({ users }: UsersDataTableProps) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            // @ts-ignore
-                            header.context
+                            header.getContext()
                           )}
                     </TableHead>
                   );
@@ -206,8 +231,10 @@ export function UsersDataTable({ users }: UsersDataTableProps) {
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {/* @ts-ignore */}
-                      {flexRender(cell.column.columnDef.cell, cell.context)}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -215,7 +242,7 @@ export function UsersDataTable({ users }: UsersDataTableProps) {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={createColumns().length}
                   className="h-24 text-center"
                 >
                   No users found.
