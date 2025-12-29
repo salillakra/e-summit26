@@ -1,21 +1,59 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { getSiteUrl } from "@/lib/site";
-import SmoothScrolling from "@/components/SmoothScrolling";
+import { ReactLenis } from "@/components/SmoothScrolling";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const siteUrl = getSiteUrl();
 
-const interFont = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700"],
-  adjustFontFallback: false,
+// Google Sans Font
+const googleSans = localFont({
+  src: [
+    {
+      path: "../public/fonts/Google_Sans/static/GoogleSans-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Google_Sans/static/GoogleSans-Italic.ttf",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../public/fonts/Google_Sans/static/GoogleSans-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Google_Sans/static/GoogleSans-MediumItalic.ttf",
+      weight: "500",
+      style: "italic",
+    },
+    {
+      path: "../public/fonts/Google_Sans/static/GoogleSans-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Google_Sans/static/GoogleSans-SemiBoldItalic.ttf",
+      weight: "600",
+      style: "italic",
+    },
+    {
+      path: "../public/fonts/Google_Sans/static/GoogleSans-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Google_Sans/static/GoogleSans-BoldItalic.ttf",
+      weight: "700",
+      style: "italic",
+    },
+  ],
+  variable: "--font-google-sans",
   display: "swap",
-  fallback: ["Helvetica", "Arial", "sans-serif"],
-  preload: true,
-  style: "normal",
 });
 
 export const metadata: Metadata = {
@@ -64,17 +102,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${interFont.variable} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SmoothScrolling />
-          {children}
-        </ThemeProvider>
-      </body>
+      <ReactLenis
+        options={{
+          duration: 1.2,
+          gestureOrientation: "vertical",
+          smoothWheel: true,
+          touchMultiplier: 2,
+          infinite: false,
+        }}
+        root
+      >
+        <body className={`${googleSans.variable} antialiased`}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster position="top-center"/>
+          </ThemeProvider>
+        </body>
+      </ReactLenis>
     </html>
   );
 }

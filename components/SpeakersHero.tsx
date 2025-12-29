@@ -75,7 +75,7 @@ export default function SpeakersHero() {
             <m.h1
               className={cn(
                 "select-none",
-                "font-['Inter',ui-sans-serif,system-ui]",
+                "font-sans",
                 "font-extrabold",
                 "tracking-[-0.06em]",
                 "text-white",

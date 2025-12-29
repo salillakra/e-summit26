@@ -108,7 +108,7 @@ export default function Sponsorship() {
         <h2
           className="
             mt-6
-            font-['Inter',ui-sans-serif,system-ui]
+            font-sans
             text-4xl sm:text-5xl md:text-6xl
             leading-[1.06]
             tracking-tight

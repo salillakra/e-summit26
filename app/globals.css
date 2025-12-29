@@ -24,19 +24,14 @@ html.lenis body {
   pointer-events: none;
 }
 
-body,
-html {
-  @apply overflow-x-hidden;
-}
-
 body {
-  @apply font-['Inter',ui-sans-serif,system-ui] antialiased;
+  @apply font-sans antialiased;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-google-sans);
   /* --font-mono: var(--font-geist-mono); */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
