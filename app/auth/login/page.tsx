@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Silk from "@/components/Silk";
 import { LoginForm } from "@/components/login-form";
+import { Suspense } from "react";
 
 export default function SignInPage() {
   return (
@@ -68,7 +69,9 @@ export default function SignInPage() {
           transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
           className="w-full"
         >
-          <LoginForm />
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
         </motion.div>
 
         {/* Back to Home & Sign up */}

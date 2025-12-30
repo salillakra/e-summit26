@@ -4,22 +4,26 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Silk from "@/components/Silk";
 import { OnboardingForm } from "@/components/onboarding-form";
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { checkOnBoardingStatus } from "./actions";
 
-export default function OnboardingPage() {
+function OnboardingPageInner() {
+  const searchParams = useSearchParams();
+
+  const redirect = searchParams.get("redirect");
   const router = useRouter();
   const [Isloading, setIsLoading] = useState<boolean>(true);
   useEffect(() => {
     checkOnBoardingStatus().then((completed) => {
       if (completed) {
-        router.push("/protected");
+        router.push(redirect || "/protected");
       } else {
         setIsLoading(false);
       }
     });
-  }, [router]);
+  }, [router, redirect]);
 
   if (Isloading) {
     return (
@@ -108,9 +112,17 @@ export default function OnboardingPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="w-full"
         >
-          <OnboardingForm />
+          <OnboardingForm redirect={redirect} />
         </motion.div>
       </div>
     </section>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={null}>
+      <OnboardingPageInner />
+    </Suspense>
   );
 }
