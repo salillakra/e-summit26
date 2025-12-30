@@ -5,6 +5,7 @@ import ContactHero from "@/components/ContactHero";
 import ContactUs from "@/components/ContactUs";
 import { domAnimation, LazyMotion } from "framer-motion";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
+import { ReactLenis } from "@/components/SmoothScrolling";
 
 export const metadata: Metadata = {
   title: "Contact | E-Summit 2026",
@@ -30,17 +31,28 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="isolate bg-black text-white">
-      <LazyMotion features={domAnimation}>
-        <Navbar />
-        <main>
-          <ContactHero />
-          <ReactQueryProvider>
-            <ContactUs />
-          </ReactQueryProvider>
-        </main>
-        <FooterSection />
-      </LazyMotion>
-    </div>
+    <ReactLenis
+      options={{
+        duration: 1.2,
+        gestureOrientation: "vertical",
+        smoothWheel: true,
+        touchMultiplier: 2,
+        infinite: false,
+      }}
+      root
+    >
+      <div className="isolate bg-black text-white">
+        <LazyMotion features={domAnimation}>
+          <Navbar />
+          <main>
+            <ContactHero />
+            <ReactQueryProvider>
+              <ContactUs />
+            </ReactQueryProvider>
+          </main>
+          <FooterSection />
+        </LazyMotion>
+      </div>
+    </ReactLenis>
   );
 }

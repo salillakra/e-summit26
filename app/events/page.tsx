@@ -4,6 +4,8 @@ import FooterSection from "@/components/FooterSection";
 import EventsHero from "@/components/EventsHero";
 import EventSchedule from "@/components/EventSchedule";
 import { domAnimation, LazyMotion } from "framer-motion";
+import { ReactLenis } from "@/components/SmoothScrolling";
+
 
 export const metadata: Metadata = {
   title: "Events | E-Summit 2026",
@@ -29,15 +31,26 @@ export const metadata: Metadata = {
 
 export default function EventsPage() {
   return (
-    <div className="isolate bg-black text-white">
-      <LazyMotion features={domAnimation}>
-        <Navbar />
-        <main>
-          <EventsHero />
-          <EventSchedule />
-        </main>
-        <FooterSection />
-      </LazyMotion>
-    </div>
+    <ReactLenis
+      options={{
+        duration: 1.2,
+        gestureOrientation: "vertical",
+        smoothWheel: true,
+        touchMultiplier: 2,
+        infinite: false,
+      }}
+      root
+    >
+      <div className="isolate bg-black text-white">
+        <LazyMotion features={domAnimation}>
+          <Navbar />
+          <main>
+            <EventsHero />
+            <EventSchedule />
+          </main>
+          <FooterSection />
+        </LazyMotion>
+      </div>
+    </ReactLenis>
   );
 }
