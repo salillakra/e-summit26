@@ -1,29 +1,31 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useState, useRef, startTransition } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export function RouteLoadingBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const completeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prevPathnameRef = useRef<string>(pathname);
+  const prevSearchParamsRef = useRef<string>(searchParams?.toString() || "");
 
   useEffect(() => {
-    // Only trigger if pathname actually changed
-    if (prevPathnameRef.current === pathname) {
+    const currentSearchParams = searchParams?.toString() || "";
+
+    // Only trigger if pathname or search params actually changed
+    if (
+      prevPathnameRef.current === pathname &&
+      prevSearchParamsRef.current === currentSearchParams
+    ) {
       return;
     }
 
     prevPathnameRef.current = pathname;
-
-    // Use microtask to avoid setState in effect warning
-    queueMicrotask(() => {
-      setLoading(true);
-      setProgress(10);
-    });
+    prevSearchParamsRef.current = currentSearchParams;
 
     // Clear any existing intervals/timeouts
     if (progressIntervalRef.current) {
@@ -33,7 +35,13 @@ export function RouteLoadingBar() {
       clearTimeout(completeTimeoutRef.current);
     }
 
-    // Simulate loading progress
+    // Start loading immediately
+    startTransition(() => {
+      setLoading(true);
+      setProgress(20);
+    });
+
+    // Simulate loading progress - faster increments
     progressIntervalRef.current = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) {
@@ -42,11 +50,11 @@ export function RouteLoadingBar() {
           }
           return 90;
         }
-        return prev + Math.random() * 20 + 10;
+        return prev + Math.random() * 15 + 15;
       });
-    }, 150);
+    }, 100);
 
-    // Complete the loading bar
+    // Complete the loading bar - faster completion
     completeTimeoutRef.current = setTimeout(() => {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
@@ -58,9 +66,9 @@ export function RouteLoadingBar() {
         setLoading(false);
         setTimeout(() => {
           setProgress(0);
-        }, 200);
-      }, 200);
-    }, 600);
+        }, 150);
+      }, 150);
+    }, 400);
 
     return () => {
       if (progressIntervalRef.current) {
@@ -70,13 +78,13 @@ export function RouteLoadingBar() {
         clearTimeout(completeTimeoutRef.current);
       }
     };
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   if (!loading && progress === 0) return null;
 
   return (
     <div
-      className="fixed top-0 left-0 w-screen h-1 bg-transparent pointer-events-none z-[9999]"
+      className="fixed top-0 left-0 w-screen h-1 bg-transparent pointer-events-none z-9999"
       role="progressbar"
       aria-valuenow={progress}
       aria-valuemin={0}
