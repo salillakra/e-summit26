@@ -4,6 +4,7 @@ import {
   type LucideIcon,
   Users,
   Trophy,
+  MessageSquare,
 } from "lucide-react";
 
 export interface NavSubItem {
@@ -62,6 +63,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/admin/dashboard/registrations",
         icon: Calendar,
       },
+      {
+        title: "Chat",
+        url: "/admin/dashboard/chat",
+        icon: MessageSquare,
+      }
     ],
   },
 ];
