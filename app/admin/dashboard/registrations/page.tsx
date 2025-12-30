@@ -7,7 +7,7 @@ export default async function RegistrationsPage() {
   try {
     await requireAdminOrModerator();
   } catch {
-    redirect("/auth/login");
+    redirect("/auth/login?redirect=/admin/dashboard/registrations");
   }
 
   const registrations = await getAllRegistrations();

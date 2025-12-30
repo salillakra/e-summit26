@@ -7,7 +7,7 @@ export default async function EventsPage() {
   try {
     await requireAdminOrModerator();
   } catch (error) {
-    redirect("/auth/login");
+    redirect("/auth/login?redirect=/admin/dashboard/events");
   }
 
   const events = await getAllEvents();

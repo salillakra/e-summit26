@@ -11,7 +11,7 @@ export default async function Page() {
     await requireAdminOrModerator();
   } catch (error) {
     console.error("Access denied:", error);
-    redirect("/auth/login");
+    redirect("/auth/login?redirect=/admin/dashboard");
   }
 
   const stats = await getAdminStats();

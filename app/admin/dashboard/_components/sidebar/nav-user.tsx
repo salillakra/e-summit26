@@ -34,7 +34,8 @@ export function NavUser({
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/auth/login");
+    const next = `${window.location.pathname}${window.location.search}`;
+    router.push(`/auth/login?redirect=${encodeURIComponent(next)}`);
     router.refresh();
   };
 
@@ -48,7 +49,7 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage  src={user.avatar || undefined} alt={user.name} />
+                <AvatarImage src={user.avatar || undefined} alt={user.name} />
                 <AvatarFallback className="rounded-lg">
                   {getInitials(user.name)}
                 </AvatarFallback>
