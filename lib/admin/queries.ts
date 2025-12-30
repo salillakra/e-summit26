@@ -126,51 +126,53 @@ export async function getEventDetails(eventId: string) {
       `
       id,
       registered_at,
+      team_id,
       teams!inner (
         id,
         name,
         slug,
         team_leader_id
-      ),
-      event_results (
-        rank,
-        marks,
-        declared_at
       )
     `
     )
     .eq("event_id", eventId)
     .order("registered_at", { ascending: false });
 
+  // Fetch event results separately for each registration
+  let registrationsWithResults: TeamRegistration[] = [];
+  
+  if (registrations && registrations.length > 0) {
+    const teamIds = registrations.map((reg: any) => reg.team_id);
+    
+    const { data: results } = await supabase
+      .from("event_results")
+      .select("team_id, rank, marks, declared_at")
+      .eq("event_id", eventId)
+      .in("team_id", teamIds);
+    
+    const resultsMap = new Map(
+      results?.map((r) => [r.team_id, r]) || []
+    );
+    
+    registrationsWithResults = registrations.map((reg: any) => {
+      const result = resultsMap.get(reg.team_id);
+      return {
+        id: reg.id,
+        registered_at: reg.registered_at,
+        teams: Array.isArray(reg.teams) ? reg.teams[0] : reg.teams,
+        event_results: result ? [result] : [],
+      };
+    });
+  }
+
   if (regError) {
     console.error("Error fetching registrations:", regError);
     return { event, registrations: [] };
   }
 
-  interface EventRegistrationData {
-    id: string;
-    registered_at: string;
-    teams: unknown;
-    event_results: Array<{
-      rank: number;
-      marks: number;
-      declared_at: string;
-    }>;
-  }
-
-  // Transform the data to match the expected type
-  const transformedRegistrations: TeamRegistration[] = (
-    registrations || []
-  ).map((reg: EventRegistrationData) => ({
-    id: reg.id,
-    registered_at: reg.registered_at,
-    teams: Array.isArray(reg.teams) ? reg.teams[0] : reg.teams,
-    event_results: reg.event_results || [],
-  }));
-
   return {
     event,
-    registrations: transformedRegistrations,
+    registrations: registrationsWithResults,
   };
 }
 
