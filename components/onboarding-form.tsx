@@ -3,7 +3,13 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
@@ -13,7 +19,8 @@ function formatSupabaseError(err: any) {
   if (!err) return "Unknown error";
 
   // Supabase/PostgREST errors are often plain objects, not instances of Error
-  const msg = err.message || err.error_description || err.error || "Request failed";
+  const msg =
+    err.message || err.error_description || err.error || "Request failed";
   const details = err.details ? `\nDetails: ${err.details}` : "";
   const hint = err.hint ? `\nHint: ${err.hint}` : "";
   const code = err.code ? `\nCode: ${err.code}` : "";
@@ -23,8 +30,9 @@ function formatSupabaseError(err: any) {
 
 export function OnboardingForm({
   className,
+  redirect,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithoutRef<"div"> & { redirect?: string | null }) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -73,7 +81,8 @@ export function OnboardingForm({
         throw profileError;
       }
 
-      router.push("/protected");
+      // Redirect to the intended destination or default to /protected
+      router.push(redirect || "/protected");
       router.refresh();
     } catch (err: any) {
       console.error("[Onboarding] submit failed:", err);
@@ -199,7 +208,14 @@ export function OnboardingForm({
                       fill="none"
                       viewBox="0 0 24 24"
                     >
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
                       <path
                         className="opacity-75"
                         fill="currentColor"
