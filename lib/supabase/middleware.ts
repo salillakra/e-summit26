@@ -38,16 +38,20 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims()
   const user = data?.claims
 
-  // Define protected routes that require authentication
-  const protectedRoutes = ['/protected']
-  const isProtectedRoute = protectedRoutes.some(route => 
-    request.nextUrl.pathname.startsWith(route)
-  )
-
-  // Only redirect to login if accessing a protected route without authentication
-  if (!user && isProtectedRoute) {
+  if (
+    !user &&
+    !request.nextUrl.pathname.startsWith('/login') &&
+    !request.nextUrl.pathname.startsWith('/auth')
+  ) {
+    // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
+    // Preserve the original destination so login can send the user back.
+    // Include search params as well (e.g. deep links).
+    url.searchParams.set(
+      'redirect',
+      `${request.nextUrl.pathname}${request.nextUrl.search}`
+    )
     return NextResponse.redirect(url)
   }
 
