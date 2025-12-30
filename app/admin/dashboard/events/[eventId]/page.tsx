@@ -17,13 +17,13 @@ export default async function EventDetailsPage({
 }: {
   params: Promise<{ eventId: string }>;
 }) {
+  const { eventId } = await params;
+
   try {
     await requireAdminOrModerator();
   } catch (error) {
-    redirect("/auth/login");
+    redirect(`/auth/login?redirect=/admin/dashboard/events/${eventId}`);
   }
-
-  const { eventId } = await params;
   const eventData = await getEventDetails(eventId);
 
   if (!eventData || !eventData.event) {

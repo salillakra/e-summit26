@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import AboutSection from "@/components/AboutSection";
@@ -9,21 +8,33 @@ import EventSchedule from "@/components/EventSchedule";
 import Sponsorship from "@/components/Sponsorship";
 import Questions from "@/components/Questions";
 import { domAnimation, LazyMotion } from "framer-motion";
+import { ReactLenis } from "@/components/SmoothScrolling";
 
 export default function Page() {
   return (
-    <div className="isolate">
-      <LazyMotion features={domAnimation}>
-        <Navbar />
-        <Hero />
-        <AboutSection />
-        <ForWhomSection />
-        <SpeakersSection />
-        <EventSchedule />
-        <Sponsorship />
-        <Questions />
-        <FooterSection />
-      </LazyMotion>
-    </div>
+    <ReactLenis
+      options={{
+        duration: 1.2,
+        gestureOrientation: "vertical",
+        smoothWheel: true,
+        touchMultiplier: 2,
+        infinite: false,
+      }}
+      root
+    >
+      <div className="isolate">
+        <LazyMotion features={domAnimation}>
+          <Navbar />
+          <Hero />
+          <AboutSection />
+          <ForWhomSection />
+          <SpeakersSection />
+          <EventSchedule />
+          <Sponsorship />
+          <Questions />
+          <FooterSection />
+        </LazyMotion>
+      </div>
+    </ReactLenis>
   );
 }
