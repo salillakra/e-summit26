@@ -49,6 +49,7 @@ interface RegistrationsDataTableProps {
 const columns: ColumnDef<Registration>[] = [
   {
     accessorKey: "teams.name",
+    id: "team_name",
     header: ({ column }) => {
       return (
         <Button
@@ -160,10 +161,10 @@ export function RegistrationsDataTable({
         <Input
           placeholder="Filter by team name..."
           value={
-            (table.getColumn("teams.name")?.getFilterValue() as string) ?? ""
+            (table.getColumn("team_name")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn("teams.name")?.setFilterValue(event.target.value)
+            table.getColumn("team_name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -180,8 +181,7 @@ export function RegistrationsDataTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            // @ts-expect-error TanStack Table context type mismatch
-                            header.context
+                            header.getContext()
                           )}
                     </TableHead>
                   );
@@ -198,8 +198,10 @@ export function RegistrationsDataTable({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {/* @ts-expect-error TanStack Table context type mismatch */}
-                      {flexRender(cell.column.columnDef.cell, cell.context)}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
