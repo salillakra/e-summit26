@@ -9,7 +9,9 @@ export default async function UsersPage() {
     await requireAdminOrModerator();
   } catch (error) {
     console.error("Access denied:", error);
-    redirect("/auth/login?redirect=/admin/dashboard/users");
+    redirect(
+      `/auth/login?redirect=${encodeURIComponent("/admin/dashboard/users")}`
+    );
   }
 
   const users = await getAllUsersWithDetails();
