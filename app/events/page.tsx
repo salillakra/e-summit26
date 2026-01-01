@@ -6,7 +6,7 @@ import EventSchedule from "@/components/EventSchedule";
 import { domAnimation, LazyMotion } from "framer-motion";
 
 export const metadata: Metadata = {
-  title: "Events | E-Summit 2026",
+  title: "Events",
   description:
     "Explore the E-Summit 2026 events and schedule — sessions, competitions, workshops, and networking opportunities.",
   alternates: {

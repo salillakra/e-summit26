@@ -7,7 +7,7 @@ import { domAnimation, LazyMotion } from "framer-motion";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 
 export const metadata: Metadata = {
-  title: "Contact | E-Summit 2026",
+  title: "Contact",
   description:
     "Contact the E-Summit 2026 team (EDC BIT Mesra) for partnerships, sponsorships, speaker queries, or general support.",
   alternates: {
