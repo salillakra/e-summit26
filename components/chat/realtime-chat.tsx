@@ -11,6 +11,7 @@ import { Send, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { EmojiGifPicker } from "@/components/chat/emoji-gif-picker";
+import { format } from "date-fns";
 
 interface RealtimeChatProps {
   roomName?: string;
@@ -64,6 +65,28 @@ export const RealtimeChat = ({
     userId,
   });
 
+  // Group messages by date
+  const groupMessagesByDate = (messages: typeof dbMessages) => {
+    const groups: { date: string; messages: typeof dbMessages }[] = [];
+    let currentDate = '';
+
+    messages.forEach((message) => {
+      const messageDate = new Date(message.createdAt).toDateString();
+      
+      if (messageDate !== currentDate) {
+        currentDate = messageDate;
+        groups.push({
+          date: currentDate,
+          messages: []
+        });
+      }
+      
+      groups[groups.length - 1].messages.push(message);
+    });
+
+    return groups;
+  };
+
   // Merge database messages with realtime messages
   const allMessages = useMemo(() => {
     console.log(
@@ -79,21 +102,15 @@ export const RealtimeChat = ({
         index === self.findIndex((m) => m.id === message.id)
     );
     // Sort by creation date
-    const sorted = uniqueMessages.sort((a, b) =>
+    return uniqueMessages.sort((a, b) =>
       a.createdAt.localeCompare(b.createdAt)
     );
-    console.log(
-      "Final merged messages:",
-      sorted.map((m) => ({
-        id: m.id,
-        content: m.content.substring(0, 20),
-        userName: m.user.name,
-        userRole: m.user.role,
-        userAvatar: m.user.avatar?.substring(0, 30),
-      }))
-    );
-    return sorted;
   }, [dbMessages, realtimeMessages]);
+
+  // Group messages by date
+  const groupedMessages = useMemo(() => {
+    return groupMessagesByDate(allMessages);
+  }, [allMessages]);
 
   // Request notification permission on mount
   useEffect(() => {
@@ -344,47 +361,57 @@ export const RealtimeChat = ({
         ) : null}
 
         <div className="space-y-1">
-          {allMessages.map((message, index) => {
-            const prevMessage = index > 0 ? allMessages[index - 1] : null;
-
-            // Show header if:
-            // 1. First message
-            // 2. Different user ID from previous message
-            // 3. Time gap > 5 minutes from previous message
-            let showHeader =
-              !prevMessage || prevMessage.user.id !== message.user.id;
-
-            if (prevMessage && prevMessage.user.id === message.user.id) {
-              const timeDiff =
-                new Date(message.createdAt).getTime() -
-                new Date(prevMessage.createdAt).getTime();
-              const fiveMinutes = 5 * 60 * 1000;
-              if (timeDiff > fiveMinutes) {
-                showHeader = true;
-              }
-            }
-
-            return (
-              <div
-                key={message.id}
-                className="animate-in fade-in slide-in-from-bottom-4 duration-300"
-              >
-                <ChatMessageItem
-                  message={message}
-                  isOwnMessage={message.user.id === userId}
-                  showHeader={showHeader}
-                  currentUserId={userId}
-                  onDelete={async (msgId) => {
-                    const { deleteMessage } = await import(
-                      "@/lib/chat/actions"
-                    );
-                    await deleteMessage(msgId);
-                    window.location.reload();
-                  }}
-                />
+          {groupedMessages.map((group, groupIndex) => (
+            <div key={group.date} className="space-y-1">
+              <div className="flex items-center my-4">
+                <div className="flex-1 border-t border-border" />
+                <span className="mx-3 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                  {format(new Date(group.date), 'EEEE, MMMM d, yyyy') === format(new Date(), 'EEEE, MMMM d, yyyy')
+                    ? 'Today'
+                    : format(new Date(group.date), 'EEEE, MMMM d, yyyy') === 
+                      format(new Date(Date.now() - 86400000), 'EEEE, MMMM d, yyyy')
+                    ? 'Yesterday'
+                    : format(new Date(group.date), 'EEEE, MMMM d, yyyy')}
+                </span>
+                <div className="flex-1 border-t border-border" />
               </div>
-            );
-          })}
+              {group.messages.map((message, index) => {
+                const prevMessage = index > 0 ? group.messages[index - 1] : null;
+                let showHeader = !prevMessage || prevMessage.user.id !== message.user.id;
+
+                if (prevMessage && prevMessage.user.id === message.user.id) {
+                  const timeDiff =
+                    new Date(message.createdAt).getTime() -
+                    new Date(prevMessage.createdAt).getTime();
+                  const fiveMinutes = 5 * 60 * 1000;
+                  if (timeDiff > fiveMinutes) {
+                    showHeader = true;
+                  }
+                }
+
+                return (
+                  <div
+                    key={message.id}
+                    className="animate-in fade-in slide-in-from-bottom-4 duration-300"
+                  >
+                    <ChatMessageItem
+                      message={message}
+                      isOwnMessage={message.user.id === userId}
+                      showHeader={showHeader}
+                      currentUserId={userId}
+                      onDelete={async (msgId) => {
+                        const { deleteMessage } = await import(
+                          "@/lib/chat/actions"
+                        );
+                        await deleteMessage(msgId);
+                        window.location.reload();
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
 
