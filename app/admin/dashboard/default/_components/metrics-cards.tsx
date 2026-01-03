@@ -74,6 +74,9 @@ interface AdditionalMetricsProps {
     totalUsers: number;
     weekSignups: number;
     totalTeams: number;
+    weekSignupsTrend: number;
+    onboardingTrend: number;
+    engagementTrend: number;
   };
 }
 
@@ -95,7 +98,7 @@ export function AdditionalMetrics({ stats }: AdditionalMetricsProps) {
         value={`${onboardingRate}%`}
         description="Users who completed onboarding"
         trend={{
-          value: onboardingRate > 66 ? 12 : onboardingRate > 33 ? 5 : -3,
+          value: stats.onboardingTrend,
           label: "vs last week",
         }}
       />
@@ -104,7 +107,7 @@ export function AdditionalMetrics({ stats }: AdditionalMetricsProps) {
         value={stats.weekSignups}
         description="New registrations this week"
         trend={{
-          value: stats.weekSignups > 0 ? 20 : 0,
+          value: stats.weekSignupsTrend,
           label: "from last week",
         }}
       />
@@ -120,7 +123,7 @@ export function AdditionalMetrics({ stats }: AdditionalMetricsProps) {
         )}%`}
         description="User engagement metric"
         trend={{
-          value: stats.onboardedCount > stats.totalUsers / 2 ? 8 : 3,
+          value: stats.engagementTrend,
           label: "engagement",
         }}
       />
