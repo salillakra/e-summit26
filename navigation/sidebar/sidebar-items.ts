@@ -5,6 +5,7 @@ import {
   Users,
   Trophy,
   MessageSquare,
+  Mail,
 } from "lucide-react";
 
 export interface NavSubItem {
@@ -67,6 +68,11 @@ export const sidebarItems: NavGroup[] = [
         title: "Chat",
         url: "/admin/dashboard/chat",
         icon: MessageSquare,
+      },
+      {
+        title: "Contacts",
+        url: "/admin/dashboard/contacts",
+        icon: Mail,
       }
     ],
   },
