@@ -148,7 +148,7 @@ const columns: ColumnDef<Registration>[] = [
       
       return (
         <Link href={`/admin/dashboard/registrations/team/${teamId}`}>
-          <Button variant="outline" size="sm">
+          <Button className="cursor-pointer" variant="outline" size="sm">
             <Eye className="mr-2 h-4 w-4" />
             View Team
           </Button>
