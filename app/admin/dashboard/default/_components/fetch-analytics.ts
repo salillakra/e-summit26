@@ -1,7 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export async function fetchAnalyticsData() {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   // Fetch all profiles with user data
   const { data: profiles } = await supabase
@@ -17,14 +17,28 @@ export async function fetchAnalyticsData() {
   
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
   const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   
   const weekSignups = profilesList.filter(
     (p) => new Date(p.created_at) >= weekAgo
   ).length;
   
+  const previousWeekSignups = profilesList.filter(
+    (p) => new Date(p.created_at) >= twoWeeksAgo && new Date(p.created_at) < weekAgo
+  ).length;
+  
   const monthSignups = profilesList.filter(
     (p) => new Date(p.created_at) >= monthAgo
+  ).length;
+
+  // Calculate onboarding completion trend
+  const onboardedThisWeek = profilesList.filter(
+    (p) => p.onboarding_completed && new Date(p.created_at) >= weekAgo
+  ).length;
+  
+  const onboardedPreviousWeek = profilesList.filter(
+    (p) => p.onboarding_completed && new Date(p.created_at) >= twoWeeksAgo && new Date(p.created_at) < weekAgo
   ).length;
 
   // Calculate branch distribution
@@ -76,6 +90,34 @@ export async function fetchAnalyticsData() {
   const teamsThisWeek = teamsList.filter(
     (t) => new Date(t.created_at) >= weekAgo
   ).length;
+  
+  const teamsPreviousWeek = teamsList.filter(
+    (t) => new Date(t.created_at) >= twoWeeksAgo && new Date(t.created_at) < weekAgo
+  ).length;
+
+  // Calculate trends (week over week percentage change)
+  const weekSignupsTrend = previousWeekSignups > 0 
+    ? Math.round(((weekSignups - previousWeekSignups) / previousWeekSignups) * 100)
+    : weekSignups > 0 ? 100 : 0;
+
+  const onboardingTrend = onboardedPreviousWeek > 0
+    ? Math.round(((onboardedThisWeek - onboardedPreviousWeek) / onboardedPreviousWeek) * 100)
+    : onboardedThisWeek > 0 ? 100 : 0;
+
+  // Calculate engagement/active rate trend
+  const usersAsOfWeekAgo = profilesList.filter(
+    (p) => new Date(p.created_at) < weekAgo
+  ).length;
+  const onboardedAsOfWeekAgo = profilesList.filter(
+    (p) => p.onboarding_completed && new Date(p.created_at) < weekAgo
+  ).length;
+  
+  const currentActiveRate = totalUsers > 0 ? (onboardedCount / totalUsers) * 100 : 0;
+  const previousActiveRate = usersAsOfWeekAgo > 0 ? (onboardedAsOfWeekAgo / usersAsOfWeekAgo) * 100 : 0;
+  
+  const engagementTrend = previousActiveRate > 0
+    ? Math.round(currentActiveRate - previousActiveRate)
+    : currentActiveRate > 0 ? Math.round(currentActiveRate) : 0;
 
   return {
     userGrowthData,
@@ -88,6 +130,9 @@ export async function fetchAnalyticsData() {
       monthSignups,
       totalTeams,
       teamsThisWeek,
+      weekSignupsTrend,
+      onboardingTrend,
+      engagementTrend,
     },
   };
 }
