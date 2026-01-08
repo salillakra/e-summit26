@@ -3,6 +3,7 @@
 // import Silk from "@/components/Silk";
 import GradientBlinds from "./GradientBlinds";
 import { m, useInView, useReducedMotion } from "framer-motion";
+import AnimatedBlurText from "@/components/AnimatedBlurText";
 import { useRef } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -23,24 +24,24 @@ export default function ContactHero() {
       className="relative w-full overflow-hidden bg-black text-white"
     >
       {/* Responsive height: 1/4 on mobile, 3/4 on desktop */}
-      <div className="relative h-[25svh] md:h-[75svh] w-full">
+      <div className="relative h-[100svh] w-full">
         {/* Silk background */}
         <div className="absolute inset-0">
           <GradientBlinds
-          gradientColors={["#8F00AF", "#8F00AF"]}
-          angle={24}
-          noise={0.25}
-          blindCount={20}
-          blindMinWidth={15}
-          spotlightRadius={0.6}
-          spotlightSoftness={1}
-          spotlightOpacity={1}
-          mouseDampening={0.50}
-          distortAmount={0}
-          shineDirection="left"
-          mixBlendMode="lighten"
-          className="w-full h-full"
-        />
+            gradientColors={["#8F00AF", "#8F00AF"]}
+            angle={24}
+            noise={0.25}
+            blindCount={20}
+            blindMinWidth={15}
+            spotlightRadius={0.6}
+            spotlightSoftness={1}
+            spotlightOpacity={1}
+            mouseDampening={0.50}
+            distortAmount={0}
+            shineDirection="left"
+            mixBlendMode="lighten"
+            className="w-full h-full"
+          />
         </div>
 
         {/* Vignette + contrast overlays to match the screenshot feel */}
@@ -51,7 +52,20 @@ export default function ContactHero() {
         {/* Title */}
         <div className="relative mx-auto h-full max-w-7xl px-6">
           {/* Use items-end and a tiny pb so baseline kisses the floor */}
-          <div className="flex h-full items-end justify-center pb-0">
+          <div className="flex h-full flex-col items-center justify-end pb-4 md:pb-6 gap-3">
+            <AnimatedBlurText
+              lines={["START THE "]}
+              liteText="CONVERSATION"
+              className="
+    text-center
+    font-extrabold
+    tracking-[-0.04em]
+    text-white
+    text-[clamp(30px,6.2vw,100px)]
+    leading-[0.95]
+  "
+            />
+
             <h1
               className={cn(
                 "select-none",

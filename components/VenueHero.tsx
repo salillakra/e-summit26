@@ -3,6 +3,7 @@
 // import Silk from "@/components/Silk";
 import GradientBlinds from "./GradientBlinds";
 import { m, useInView, useReducedMotion } from "framer-motion";
+import AnimatedBlurText from "@/components/AnimatedBlurText";
 import { useRef } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -23,7 +24,7 @@ export default function VenueHero() {
       className="relative w-full overflow-hidden bg-black text-white"
     >
       {/* Responsive height: 1/4 on mobile, 3/4 on desktop */}
-      <div className="relative h-[25svh] md:h-[75svh] w-full">
+      <div className="relative h-[100svh] w-full">
         {/* Silk background */}
         <div className="absolute inset-0">
           <GradientBlinds
@@ -51,7 +52,20 @@ export default function VenueHero() {
         {/* Title */}
         <div className="relative mx-auto h-full max-w-7xl px-6">
           {/* Use items-end and a tiny pb so baseline kisses the floor */}
-          <div className="flex h-full items-end justify-center pb-0">
+          <div className="flex h-full flex-col items-center justify-end pb-4 md:pb-6 gap-3">
+            <AnimatedBlurText
+              lines={["WHERE IT "]}
+              liteText="BEGINS"
+              className="
+    text-center
+    font-extrabold
+    tracking-[-0.04em]
+    text-white
+    text-[clamp(30px,6.2vw,100px)]
+    leading-[0.95]
+  "
+            />
+
             <h1
               className={cn(
                 "select-none",
