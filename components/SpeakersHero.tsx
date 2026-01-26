@@ -2,6 +2,7 @@
 
 import Silk from "@/components/Silk";
 import GradientBlinds from "./GradientBlinds";
+import AnimatedBlurText from "@/components/AnimatedBlurText";
 import { cn } from "@/lib/utils";
 import { m, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
@@ -48,7 +49,7 @@ export default function SpeakersHero() {
       className="relative w-full overflow-hidden bg-black text-white"
     >
       {/* Responsive height: 1/4 on mobile, 3/4 on desktop */}
-      <div className="relative h-[25svh] md:h-[75svh] w-full">
+      <div className="relative h-[100svh] w-full">
         {/* Silk background */}
         <div className="absolute inset-0">
           <GradientBlinds
@@ -76,7 +77,23 @@ export default function SpeakersHero() {
         {/* Title */}
         <div className="relative mx-auto h-full max-w-7xl px-6">
           {/* Use items-end and a tiny pb so baseline kisses the floor */}
-          <div className="flex h-full items-end justify-center pb-0">
+          <div className="flex h-full flex-col items-center justify-end pb-4 md:pb-6 gap-3">
+            {/* Animated subheading */}
+            <AnimatedBlurText
+              lines={["MEET THE "]}
+              liteText="VISIONARY"
+              className="
+    text-center
+    font-extrabold
+    tracking-[-0.04em]
+    text-white
+    text-[clamp(28px,6vw,96px)]
+    leading-[0.95]
+  "
+            />
+
+
+            {/* Main title */}
             <m.h1
               className={cn(
                 "select-none",
@@ -84,11 +101,8 @@ export default function SpeakersHero() {
                 "font-extrabold",
                 "tracking-[-0.06em]",
                 "text-white",
-                // Responsive text size
                 "text-[clamp(48px,14vw,205px)]",
-                // Responsive line height
                 "leading-[0.82] md:leading-[0.84]",
-                // Avoid inline `transform` (and keep it GPU-friendly)
                 "translate-y-1 md:translate-y-1.5"
               )}
               style={{

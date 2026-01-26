@@ -208,6 +208,46 @@ export default function Hero() {
             </span>
           </span>
         </div>
+                {/* CTA: Brochure */}
+        <motion.a
+          href="https://drive.google.com/file/d/1tAyP54AZ7kAP2nzXBC7kaNFcJH2hTd_l/view"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="E-Summit 2026 brochure"
+          className={cn(
+            "mt-7 inline-flex w-full sm:w-auto items-center justify-center",
+            "relative group overflow-hidden rounded-full",
+            "p-[1px]",
+            "bg-gradient-to-r from-[#8F00AF]/70 via-white/15 to-[#B05EC2]/70",
+            "shadow-[0_28px_120px_rgba(0,0,0,0.75)]",
+            "motion-reduce:animate-none animate-in fade-in zoom-in-95 duration-700 ease-out"
+          )}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          {/* glow */}
+          <span className="pointer-events-none absolute -inset-6 rounded-full bg-gradient-to-r from-[#8F00AF]/55 via-white/5 to-[#B05EC2]/55 blur-3xl opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
+
+          {/* button surface */}
+          <span
+            className={cn(
+              "relative inline-flex w-full sm:w-auto items-center justify-center rounded-full",
+              "bg-black/35 backdrop-blur-xl",
+              "ring-1 ring-white/15",
+              "px-7 sm:px-9 py-3.5",
+              "transition-colors duration-300 group-hover:bg-black/25",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            )}
+          >
+            <ShinyText
+              text="Get the ’26 Brochure"
+              className="text-sm sm:text-base font-semibold tracking-tight text-center"
+              disabled={false}
+              speed={3}
+            />
+          </span>
+        </motion.a>
+
       </div>
 
       {/* Bottom dates */}
@@ -215,7 +255,7 @@ export default function Hero() {
         <div className="w-full px-2 sm:px-3 md:px-6">
           <div className="grid grid-cols-1 sm:grid-cols-[max-content_1fr_max-content_1fr_max-content] items-center gap-2 sm:gap-3 md:gap-4">
             <ShinyText
-              text="30th January 2026"
+              text="13th February 2026"
               className="text-xs sm:text-base md:text-lg lg:text-xl font-normal justify-self-center text-center"
               disabled={false}
               speed={3}
@@ -223,7 +263,7 @@ export default function Hero() {
 
             <div className="hidden sm:block h-px w-full bg-white/20" />
             <ShinyText
-              text="31st January 2026"
+              text="14th February 2026"
               className="text-xs sm:text-base md:text-lg lg:text-xl font-normal justify-self-center text-center"
               disabled={false}
               speed={3}
@@ -232,7 +272,7 @@ export default function Hero() {
             <div className="hidden sm:block h-px w-full bg-white/20" />
 
             <ShinyText
-              text="1st February 2026"
+              text="15th February 2026"
               className="text-xs sm:text-base md:text-lg lg:text-xl font-normal justify-self-center text-center"
               disabled={false}
               speed={3}

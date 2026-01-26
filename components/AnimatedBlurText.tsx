@@ -74,7 +74,7 @@ export default function AnimatedBlurText({
                   ease: easing,
                   delay: (previousCharsCount + line.length + 1) * charDelay,
                 }}
-                className="text-white/30"
+                className="text-[#9000b1]"
                 style={{ willChange: "opacity, filter" }}
               >
                 {liteText}
