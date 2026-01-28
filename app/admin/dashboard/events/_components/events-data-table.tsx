@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Eye } from "lucide-react";
+import { ArrowUpDown, Eye, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { EventFormDialog } from "./event-form-dialog";
+import { DeleteEventDialog } from "./delete-event-dialog";
 
 type Event = {
   id: string;
@@ -109,12 +111,24 @@ const columns: ColumnDef<Event>[] = [
     cell: ({ row }) => {
       const event = row.original;
       return (
-        <Link href={`/admin/dashboard/events/${event.id}`}>
-          <Button variant="outline" size="sm">
-            <Eye className="mr-2 h-4 w-4" />
-            View Details
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href={`/admin/dashboard/events/${event.id}`}>
+            <Button variant="outline" size="sm">
+              <Eye className="mr-2 h-4 w-4" />
+              View
+            </Button>
+          </Link>
+          <EventFormDialog
+            event={event}
+            mode="edit"
+            trigger={
+              <Button variant="outline" size="sm">
+                <Pencil className="h-4 w-4" />
+              </Button>
+            }
+          />
+          <DeleteEventDialog eventId={event.id} eventName={event.name} />
+        </div>
       );
     },
   },
@@ -123,7 +137,7 @@ const columns: ColumnDef<Event>[] = [
 export function EventsDataTable({ events }: EventsDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -181,7 +195,7 @@ export function EventsDataTable({ events }: EventsDataTableProps) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -200,7 +214,7 @@ export function EventsDataTable({ events }: EventsDataTableProps) {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
