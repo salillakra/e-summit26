@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Instagram, Linkedin, ArrowRight } from "lucide-react";
+import { Instagram, Linkedin, ArrowRight, Sparkles } from "lucide-react";
 import AnimatedBlurText from "./AnimatedBlurText";
 import Image from "next/image";
 
 export default function SpeakersSection() {
+  // ✅ flip this to false when you're ready to reveal real speakers
+  const MASK_SPEAKERS = true;
+
   const speakers = useMemo(
     () => [
       {
@@ -157,101 +160,209 @@ export default function SpeakersSection() {
         </h2>
 
         {/* Slider */}
-        <div className="mt-10">
+        <div className="mt-10 relative">
+          {/* CONTENT LAYER (blur + disable interactions when masked) */}
           <div
-            ref={scrollerRef}
-            className="
-              relative
-              overflow-x-auto overscroll-x-contain
-              pb-2
-              select-none
-              [scrollbar-width:none]
-              [-ms-overflow-style:none]
-              [&::-webkit-scrollbar]:hidden
-            "
-            style={{
-              scrollSnapType: "x mandatory",
-              WebkitOverflowScrolling: "touch",
-            }}
-            onPointerDown={(e) => {
-              const scroller = scrollerRef.current;
-              if (!scroller) return;
-              drag.current.down = true;
-              drag.current.startX = e.clientX;
-              drag.current.startScrollLeft = scroller.scrollLeft;
-              scroller.setPointerCapture?.(e.pointerId);
-            }}
-            onPointerMove={(e) => {
-              const scroller = scrollerRef.current;
-              if (!scroller || !drag.current.down) return;
-              const dx = e.clientX - drag.current.startX;
-              scroller.scrollLeft = drag.current.startScrollLeft - dx;
-            }}
-            onPointerUp={() => {
-              drag.current.down = false;
-              setTimeout(snapToNearest, 0);
-            }}
-            onPointerCancel={() => {
-              drag.current.down = false;
-              setTimeout(snapToNearest, 0);
-            }}
-            onScroll={scheduleUpdate}
+            className={[
+              "relative",
+              MASK_SPEAKERS
+                ? "pointer-events-none opacity-85 blur-[16px] saturate-[1.05] scale-[1.01]"
+                : "",
+            ].join(" ")}
           >
-            <div className="flex min-w-max gap-10 py-6 md:gap-14">
-              {speakers.map((sp, i) => {
-                const isActive = i === activeIdx;
-                const lift = isActive ? "-translate-y-6" : "translate-y-3";
-                const scale = isActive ? "scale-[1.02]" : "scale-[0.98]";
-                const op = isActive ? "opacity-100" : "opacity-92";
+            <div
+              ref={scrollerRef}
+              className="
+                relative
+                overflow-x-auto overscroll-x-contain
+                pb-2
+                select-none
+                [scrollbar-width:none]
+                [-ms-overflow-style:none]
+                [&::-webkit-scrollbar]:hidden
+              "
+              style={{
+                scrollSnapType: "x mandatory",
+                WebkitOverflowScrolling: "touch",
+              }}
+              onPointerDown={(e) => {
+                const scroller = scrollerRef.current;
+                if (!scroller) return;
+                drag.current.down = true;
+                drag.current.startX = e.clientX;
+                drag.current.startScrollLeft = scroller.scrollLeft;
+                scroller.setPointerCapture?.(e.pointerId);
+              }}
+              onPointerMove={(e) => {
+                const scroller = scrollerRef.current;
+                if (!scroller || !drag.current.down) return;
+                const dx = e.clientX - drag.current.startX;
+                scroller.scrollLeft = drag.current.startScrollLeft - dx;
+              }}
+              onPointerUp={() => {
+                drag.current.down = false;
+                setTimeout(snapToNearest, 0);
+              }}
+              onPointerCancel={() => {
+                drag.current.down = false;
+                setTimeout(snapToNearest, 0);
+              }}
+              onScroll={scheduleUpdate}
+            >
+              <div className="flex min-w-max gap-10 py-6 md:gap-14">
+                {speakers.map((sp, i) => {
+                  const isActive = i === activeIdx;
+                  const lift = isActive ? "-translate-y-6" : "translate-y-3";
+                  const scale = isActive ? "scale-[1.02]" : "scale-[0.98]";
+                  const op = isActive ? "opacity-100" : "opacity-92";
 
-                return (
-                  <div
-                    key={sp.name}
-                    ref={(el) => (cardRefs.current[i] = el)}
-                    className={[
-                      "shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                      "w-[280px] sm:w-[320px] md:w-[360px]",
-                      lift,
-                      scale,
-                      op,
-                    ].join(" ")}
-                    style={{ scrollSnapAlign: "center" }}
+                  const displayName = MASK_SPEAKERS ? `Speaker ${i + 1}` : sp.name;
+                  const displayTitle = MASK_SPEAKERS ? "Revealing soon" : sp.title;
+
+                  return (
+                    <div
+                      key={sp.name}
+                      ref={(el) => (cardRefs.current[i] = el)}
+                      className={[
+                        "shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                        "w-[280px] sm:w-[320px] md:w-[360px]",
+                        lift,
+                        scale,
+                        op,
+                      ].join(" ")}
+                      style={{ scrollSnapAlign: "center" }}
+                    >
+                      <div className="group relative overflow-hidden rounded-[26px] bg-white/5 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+                        <Image
+                          height={360}
+                          width={360}
+                          src={sp.img}
+                          alt={MASK_SPEAKERS ? "Speaker placeholder" : sp.name}
+                          draggable={false}
+                          className="
+                            h-90 w-full object-cover
+                            grayscale
+                            transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
+                            group-hover:grayscale-0 group-hover:saturate-[1.06]
+                          "
+                        />
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+
+                        {/* socials */}
+                        <div
+                          className={[
+                            "absolute bottom-4 right-4 flex items-center gap-2 transition-opacity duration-300",
+                            MASK_SPEAKERS
+                              ? "opacity-0"
+                              : isActive
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100",
+                          ].join(" ")}
+                        >
+                          <a
+                            href="#"
+                            className="grid h-10 w-10 place-items-center rounded-xl bg-white/90 text-black shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+                            aria-label="Instagram"
+                          >
+                            <Instagram size={18} />
+                          </a>
+                          <a
+                            href="#"
+                            className="grid h-10 w-10 place-items-center rounded-xl bg-white/90 text-black shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+                            aria-label="LinkedIn"
+                          >
+                            <Linkedin size={18} />
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className="mt-5">
+                        <div className="text-xl font-semibold tracking-tight">
+                          {displayName}
+                        </div>
+                        <div className="mt-1 text-sm text-white/55">
+                          {displayTitle}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="mt-10 pb-2">
+              <div className="flex items-center gap-5 text-white/90">
+                <div
+                  className="text-sm font-medium text-white"
+                  style={{
+                    textShadow:
+                      "0 0 16px rgba(255,255,255,0.70), 0 0 46px rgba(176,94,194,0.45)",
+                  }}
+                >
+                  6+ Speakers
+                </div>
+
+                <div className="h-px flex-1 bg-white/25" />
+
+                <a
+                  href="/speakers"
+                  className="group inline-flex items-center gap-3 text-sm font-medium text-white/90 hover:text-white"
+                >
+                  <span>See All</span>
+                  <span
+                    className="
+                      grid h-11 w-11 place-items-center rounded-full
+                      bg-white/90 text-black
+                      shadow-[0_14px_40px_rgba(0,0,0,0.35)]
+                    "
                   >
-                    <div className="group relative overflow-hidden rounded-[26px] bg-white/5 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
-                      <Image
-                        height={360}
-                        width={360}
-                        src={sp.img}
-                        alt={sp.name}
-                        draggable={false}
-                        className="
-                          h-90 w-full object-cover
-                          grayscale
-                          transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-                          group-hover:grayscale-0 group-hover:saturate-[1.06]
-                        "
-                      />
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                    <ArrowRight
+                      size={18}
+                      className="rotate-45 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:rotate-0"
+                    />
+                  </span>
+                </a>
+              </div>
+            </div>
+          </div>
 
-                      {/* socials (show for active; also fade in on hover for others) */}
-                      <div
-                        className={[
-                          "absolute bottom-4 right-4 flex items-center gap-2 transition-opacity duration-300",
-                          isActive
-                            ? "opacity-100"
-                            : "opacity-0 group-hover:opacity-100",
-                        ].join(" ")}
-                      >
+          {/* GLOBAL MASK (one overlay for the whole slider area) */}
+          {MASK_SPEAKERS && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center px-4">
+              <div className="w-full max-w-2xl">
+                <div className="relative overflow-hidden rounded-[28px] border border-white/12 bg-white/[0.06] p-5 sm:p-7 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+                  {/* subtle glow + vignette inside the panel */}
+                  <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#c046ff]/20 blur-[70px]" />
+                    <div className="absolute -right-20 -bottom-28 h-72 w-72 rounded-full bg-[#ff4fd8]/12 blur-[80px]" />
+                    <div className="absolute inset-0 [background:radial-gradient(120%_80%_at_50%_0%,rgba(255,255,255,0.10)_0%,transparent_55%,rgba(0,0,0,0.35)_100%)]" />
+                    <div className="absolute inset-0 rounded-[28px] ring-1 ring-white/10" />
+                  </div>
+
+                  <div className="relative">
+                    {/* top row */}
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-2 text-[11px] font-semibold tracking-[0.26em] uppercase text-white/90">
+                        <span className="relative flex h-2 w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70 opacity-40" />
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-white/80" />
+                        </span>
+                        Lineup Revealing Soon
+                        <Sparkles size={14} className="opacity-90" />
+                      </div>
+
+                      <div className="flex items-center gap-2">
                         <a
                           href="#"
-                          className="grid h-10 w-10 place-items-center rounded-xl bg-white/90 text-black shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+                          className="grid h-10 w-10 place-items-center rounded-2xl border border-white/12 bg-white/10 text-white/90 hover:bg-white/15"
                           aria-label="Instagram"
                         >
                           <Instagram size={18} />
                         </a>
                         <a
                           href="#"
-                          className="grid h-10 w-10 place-items-center rounded-xl bg-white/90 text-black shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+                          className="grid h-10 w-10 place-items-center rounded-2xl border border-white/12 bg-white/10 text-white/90 hover:bg-white/15"
                           aria-label="LinkedIn"
                         >
                           <Linkedin size={18} />
@@ -259,55 +370,75 @@ export default function SpeakersSection() {
                       </div>
                     </div>
 
-                    <div className="mt-5">
-                      <div className="text-xl font-semibold tracking-tight">
-                        {sp.name}
+                    {/* headline */}
+                    <div className="mt-5 text-2xl sm:text-3xl font-semibold leading-tight tracking-tight">
+                      Speakers are being confirmed.
+                      <span className="text-white/75"> Announcements drop in phases.</span>
+                    </div>
+
+                    {/* subtext */}
+                    <div className="mt-2 text-sm sm:text-base text-white/65 leading-relaxed">
+                      We’re curating a high-signal lineup across AI, startups, product, and growth.
+                      Follow along — the reveal starts soon.
+                    </div>
+
+                    {/* quick “teaser” blocks */}
+                    <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      {/* <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.22em] text-white/55">
+                          Tracks
+                        </div>
+                        <div className="mt-1 text-sm font-medium text-white/85">
+                          AI • Product • Startups
+                        </div>
                       </div>
-                      <div className="mt-1 text-sm text-white/55">
-                        {sp.title}
+                      <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.22em] text-white/55">
+                          Format
+                        </div>
+                        <div className="mt-1 text-sm font-medium text-white/85">
+                          Keynotes • Panels • Firesides
+                        </div>
                       </div>
+                      <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.22em] text-white/55">
+                          Drop
+                        </div>
+                        <div className="mt-1 text-sm font-medium text-white/85">
+                          Rolling reveals
+                        </div>
+                      </div> */}
+                    </div>
+
+                    {/* CTA row */}
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+                      <a
+                        href="/speakers"
+                        className="
+                          inline-flex items-center gap-2 rounded-full
+                          bg-white/90 px-5 py-3 text-sm font-semibold text-black
+                          shadow-[0_18px_50px_rgba(0,0,0,0.35)]
+                          hover:bg-white
+                        "
+                      >
+                        Get updates
+                        <ArrowRight size={16} className="opacity-90" />
+                      </a>
+
+                      {/* <div className="text-xs text-white/55">
+                        Tip: announce 1–2 speakers weekly to build hype.
+                      </div> */}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                </div>
 
-          {/* Bottom bar */}
-          <div className="mt-10 pb-2">
-            <div className="flex items-center gap-5 text-white/90">
-              <div
-                className="text-sm font-medium text-white"
-                style={{
-                  textShadow:
-                    "0 0 16px rgba(255,255,255,0.70), 0 0 46px rgba(176,94,194,0.45)",
-                }}
-              >
-                6+ Speakers
+                {/* small footer hint (responsive)
+                <div className="mt-3 text-center text-xs text-white/50">
+                  ✦ Lineup preview is intentionally blurred — full reveal coming soon.
+                </div> */}
               </div>
-
-              <div className="h-px flex-1 bg-white/25" />
-
-              <a
-                href="/speakers"
-                className="group inline-flex items-center gap-3 text-sm font-medium text-white/90 hover:text-white"
-              >
-                <span>See All</span>
-                <span
-                  className="
-                    grid h-11 w-11 place-items-center rounded-full
-                    bg-white/90 text-black
-                    shadow-[0_14px_40px_rgba(0,0,0,0.35)]
-                  "
-                >
-                  <ArrowRight
-                    size={18}
-                    className="rotate-45 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:rotate-0"
-                  />
-                </span>
-              </a>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>
