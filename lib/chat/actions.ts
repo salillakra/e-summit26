@@ -86,9 +86,7 @@ export async function storeMessage(
   return { success: true };
 }
 
-/**
- * Store multiple messages in the database (batch insert)
- */
+// Store multiple messages in the database (batch insert)
 export async function storeMessages(
   roomName: string,
   messages: ChatMessage[],
