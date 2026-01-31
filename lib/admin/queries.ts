@@ -257,6 +257,5 @@ export async function getAllEvents() {
 
   const { data } = await supabase.from("events").select("*").order("name");
 
-  console.log("getAllEvents data:", data);
   return data || [];
 }
