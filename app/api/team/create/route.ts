@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   if (active) return NextResponse.json({ error: "ALREADY_IN_TEAM_OR_PENDING" }, { status: 409 });
 
   // Try slug/code insert with retry on collision
-  let lastErr: any = null;
+  let lastErr: { message?: string; code?: string } | null = null;
 
   for (let attempt = 0; attempt < 8; attempt++) {
     const slug = makeCode(6);

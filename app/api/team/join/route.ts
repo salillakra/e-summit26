@@ -40,9 +40,13 @@ export async function POST(req: Request) {
 
   if ((count ?? 0) >= 5) return NextResponse.json({ error: "TEAM_FULL" }, { status: 409 });
 
+  // Upsert the joining record (allows re-applying after cancellation/rejection)
   const { error: insErr } = await supabase
     .from("team_members")
-    .insert({ team_id: team.id, user_id: user.id, role: "member", status: "pending" });
+    .upsert(
+      { team_id: team.id, user_id: user.id, role: "member", status: "pending" },
+      { onConflict: "team_id,user_id" }
+    );
 
   if (insErr) return NextResponse.json({ error: "JOIN_REQUEST_FAILED", details: insErr.message }, { status: 400 });
 
