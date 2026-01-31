@@ -66,7 +66,7 @@ function Marquee({ className = "" }) {
 }
 
 interface AudienceCardProps {
-  item: { key: string; label: string; icon: any; desc: string; };
+  item: { key: string; label: string; icon: React.ElementType; desc: string; };
   active: boolean;
   onClick: () => void;
 }
