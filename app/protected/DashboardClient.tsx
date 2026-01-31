@@ -115,15 +115,15 @@ function Card({
   return (
     <div
       className={cx(
-        "rounded-[24px] bg-[#111114] ring-1 ring-white/10",
+        "rounded-[20px] md:rounded-[24px] bg-[#111114] ring-1 ring-white/10",
         "shadow-[0_28px_110px_rgba(0,0,0,0.75)] backdrop-blur-xl",
-        "p-6 md:p-7",
+        "p-4 sm:p-5 md:p-7",
       )}
     >
-      <div className="mb-5">
+      <div className="mb-4 md:mb-5">
         <p className="text-sm font-medium text-white/85">{title}</p>
         {subtitle ? (
-          <p className="mt-1 text-sm text-white/55 leading-relaxed">
+          <p className="mt-1 text-xs sm:text-sm text-white/55 leading-relaxed">
             {subtitle}
           </p>
         ) : null}
@@ -135,9 +135,9 @@ function Card({
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-black/35 ring-1 ring-white/10 px-4 py-3">
-      <p className="text-xs uppercase tracking-wide text-white/45">{label}</p>
-      <p className="mt-1 text-sm font-medium text-white/90 break-words">
+    <div className="rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10 px-3 sm:px-4 py-2.5 sm:py-3">
+      <p className="text-[10px] sm:text-xs uppercase tracking-wide text-white/45">{label}</p>
+      <p className="mt-1 text-xs sm:text-sm font-medium text-white/90 break-words">
         {value}
       </p>
     </div>
@@ -154,7 +154,7 @@ function Pill({
   return (
     <span
       className={cx(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold",
+        "inline-flex items-center rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold whitespace-nowrap",
         tone === "strong"
           ? "bg-white text-black"
           : "bg-white/10 text-white ring-1 ring-white/15",
@@ -180,7 +180,7 @@ function ModalShell({
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[80] flex items-center justify-center px-6"
+          className="fixed inset-0 z-[80] flex items-center justify-center px-4 sm:px-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -188,29 +188,29 @@ function ModalShell({
           <div className="absolute inset-0 bg-black/70" onClick={onClose} />
           <motion.div
             className={cx(
-              "relative w-full max-w-lg rounded-[24px] bg-[#111114] ring-1 ring-white/10",
-              "shadow-[0_28px_110px_rgba(0,0,0,0.75)] backdrop-blur-xl p-6 md:p-7",
+              "relative w-full max-w-lg rounded-[20px] md:rounded-[24px] bg-[#111114] ring-1 ring-white/10",
+              "shadow-[0_28px_110px_rgba(0,0,0,0.75)] backdrop-blur-xl p-4 sm:p-6 md:p-7 max-h-[90vh] overflow-y-auto",
             )}
             initial={{ opacity: 0, y: 18, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.99 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
           >
-            <div className="flex items-start justify-between gap-4">
-              <div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-sm font-semibold text-white/90">{title}</p>
-                <p className="mt-1 text-sm text-white/55">
+                <p className="mt-1 text-xs sm:text-sm text-white/55">
                   E-Summit team management
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="rounded-full bg-white/10 ring-1 ring-white/15 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/15 transition"
+                className="shrink-0 rounded-full bg-white/10 ring-1 ring-white/15 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/15 transition"
               >
                 Close
               </button>
             </div>
-            <div className="mt-6">{children}</div>
+            <div className="mt-4 sm:mt-6">{children}</div>
           </motion.div>
         </motion.div>
       ) : null}
@@ -357,7 +357,7 @@ export default function DashboardClient({
     <>
       <Navbar />
 
-      <section className="relative pt-18 min-h-svh w-full overflow-x-hidden bg-black">
+      <section className="relative pt-20 md:pt-24 min-h-svh w-full overflow-x-hidden bg-black">
         <div className="fixed inset-0 opacity-70">
           <Silk
             speed={4}
@@ -376,7 +376,7 @@ export default function DashboardClient({
           }}
         />
 
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-6 py-10 md:py-12">
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6 py-6 md:py-10 lg:py-12">
           {/* Top bar */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
@@ -397,20 +397,20 @@ export default function DashboardClient({
           </motion.div>
 
           {/* Heading */}
-          <div className="mt-10">
-            <div className="flex items-center gap-3">
-              <span className="text-xs uppercase tracking-[0.22em] text-white/50">
+          <div className="mt-6 md:mt-10">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-white/50">
                 Dashboard
               </span>
-              <span className="h-px w-12 bg-white/15" />
+              <span className="h-px w-8 sm:w-12 bg-white/15" />
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3 sm:mt-4">
               <AnimatedBlurText
                 lines={["Welcome back, "]}
                 liteText={user.displayName}
               />
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">
+              <p className="mt-2 sm:mt-3 max-w-2xl text-xs sm:text-sm leading-relaxed text-white/55">
                 Manage your E-Summit team, track points, and view leaderboards.
                 Team creation uses a short code that others can request to join,
                 and leaders approve requests.
@@ -419,7 +419,7 @@ export default function DashboardClient({
           </div>
 
           {err ? (
-            <div className="mt-6 rounded-2xl bg-[#111114] ring-1 ring-white/10 p-4 text-sm text-white/75">
+            <div className="mt-4 md:mt-6 rounded-xl md:rounded-2xl bg-[#111114] ring-1 ring-white/10 p-3 sm:p-4 text-xs sm:text-sm text-white/75">
               Error: {err}
             </div>
           ) : null}
@@ -429,22 +429,22 @@ export default function DashboardClient({
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.08, ease: "easeOut" }}
-            className="mt-10"
+            className="mt-6 md:mt-10"
           >
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 md:space-y-6">
               <Card
                 title="Points & Team"
                 subtitle="Create a team, join via code, and compete across challenges and checkpoints."
               >
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-black/35 ring-1 ring-white/10 p-5">
-                    <p className="text-xs uppercase tracking-wide text-white/45">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+                  <div className="rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10 p-4 sm:p-5">
+                    <p className="text-[10px] sm:text-xs uppercase tracking-wide text-white/45">
                       Team Points
                     </p>
-                    <p className="mt-2 text-3xl font-semibold text-white/90">
+                    <p className="mt-2 text-2xl sm:text-3xl font-semibold text-white/90">
                       {points}
                     </p>
-                    <p className="mt-2 text-sm text-white/55">
+                    <p className="mt-2 text-xs sm:text-sm text-white/55">
                       Points are computed from declared event results (overall
                       leaderboard).
                     </p>
@@ -468,34 +468,34 @@ export default function DashboardClient({
                     )}
                   </div>
 
-                  <div className="rounded-2xl bg-black/35 ring-1 ring-white/10 p-5">
-                    <p className="text-xs uppercase tracking-wide text-white/45">
+                  <div className="rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10 p-4 sm:p-5">
+                    <p className="text-[10px] sm:text-xs uppercase tracking-wide text-white/45">
                       Team Status
                     </p>
 
                     {loading ? (
-                      <p className="mt-2 text-sm text-white/60">
+                      <p className="mt-2 text-xs sm:text-sm text-white/60">
                         Loading team…
                       </p>
                     ) : teamState.membershipStatus === "none" ? (
                       <>
-                        <p className="mt-2 text-lg font-semibold text-white/90">
+                        <p className="mt-2 text-base sm:text-lg font-semibold text-white/90">
                           Not in a team
                         </p>
-                        <p className="mt-2 text-sm text-white/55">
+                        <p className="mt-2 text-xs sm:text-sm text-white/55">
                           Create a team to get a code, or request to join using
                           an existing team code.
                         </p>
-                        <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row gap-2">
                           <button
                             onClick={() => setCreateOpen(true)}
-                            className="rounded-full bg-white text-black px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
+                            className="rounded-full bg-white text-black px-4 py-2 text-xs sm:text-sm font-semibold hover:opacity-90 transition w-full sm:w-auto"
                           >
                             Create Team
                           </button>
                           <button
                             onClick={() => setJoinOpen(true)}
-                            className="rounded-full bg-white/10 text-white px-4 py-2 text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition"
+                            className="rounded-full bg-white/10 text-white px-4 py-2 text-xs sm:text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition w-full sm:w-auto"
                           >
                             Join via Code
                           </button>
@@ -503,14 +503,14 @@ export default function DashboardClient({
                       </>
                     ) : teamState.membershipStatus === "pending" ? (
                       <>
-                        <p className="mt-2 text-lg font-semibold text-white/90">
+                        <p className="mt-2 text-base sm:text-lg font-semibold text-white/90">
                           Request Pending
                         </p>
-                        <p className="mt-2 text-sm text-white/55">
+                        <p className="mt-2 text-xs sm:text-sm text-white/55">
                           Your join request is awaiting approval by the team
                           leader.
                         </p>
-                        <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
                           <button
                             onClick={async () => {
                               try {
@@ -529,7 +529,7 @@ export default function DashboardClient({
                                 setLoading(false);
                               }
                             }}
-                            className="rounded-full bg-white/10 text-white px-4 py-2 text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition"
+                            className="rounded-full bg-white/10 text-white px-4 py-2 text-xs sm:text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition w-full sm:w-auto"
                           >
                             Cancel Request
                           </button>
@@ -537,10 +537,10 @@ export default function DashboardClient({
                       </>
                     ) : (
                       <>
-                        <p className="mt-2 text-lg font-semibold text-white/90">
+                        <p className="mt-2 text-base sm:text-lg font-semibold text-white/90">
                           {teamState.team.name}
                         </p>
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
                           <Pill>Code: {teamState.team.slug}</Pill>
                           <Pill>{acceptedCount}/5 members</Pill>
                           {isEligible ? (
@@ -549,11 +549,11 @@ export default function DashboardClient({
                             <Pill>Need 2+ members</Pill>
                           )}
                         </div>
-                        <p className="mt-2 text-sm text-white/55">
+                        <p className="mt-2 text-xs sm:text-sm text-white/55">
                           Share the code for join requests. Leader approves
                           requests from the dashboard.
                         </p>
-                        <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row gap-2">
                           <button
                             onClick={async () => {
                               try {
@@ -562,7 +562,7 @@ export default function DashboardClient({
                                 );
                               } catch {}
                             }}
-                            className="rounded-full bg-white text-black px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
+                            className="rounded-full bg-white text-black px-4 py-2 text-xs sm:text-sm font-semibold hover:opacity-90 transition w-full sm:w-auto"
                           >
                             Copy Team Code
                           </button>
@@ -586,7 +586,7 @@ export default function DashboardClient({
                                   setLoading(false);
                                 }
                               }}
-                              className="rounded-full bg-white/10 text-white px-4 py-2 text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition"
+                              className="rounded-full bg-white/10 text-white px-4 py-2 text-xs sm:text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition w-full sm:w-auto"
                             >
                               Leave Team
                             </button>
@@ -599,23 +599,23 @@ export default function DashboardClient({
 
                 {/* If accepted: members + pending approvals */}
                 {isAccepted ? (
-                  <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="rounded-2xl bg-black/30 ring-1 ring-white/10 p-5">
-                      <p className="text-sm font-semibold text-white/85">
+                  <div className="mt-4 md:mt-6 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+                    <div className="rounded-xl md:rounded-2xl bg-black/30 ring-1 ring-white/10 p-4 sm:p-5">
+                      <p className="text-xs sm:text-sm font-semibold text-white/85">
                         Team Members
                       </p>
-                      <div className="mt-4 space-y-3">
+                      <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
                         {teamState.acceptedMembers.map((m) => (
                           <div
                             key={m.user_id}
-                            className="flex items-center justify-between gap-3"
+                            className="flex items-center justify-between gap-2 sm:gap-3"
                           >
-                            <div className="flex items-center gap-3">
-                              <div className="h-9 w-9 rounded-full bg-white/10 ring-1 ring-white/15 grid place-items-center text-xs font-semibold text-white/80">
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                              <div className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 rounded-full bg-white/10 ring-1 ring-white/15 grid place-items-center text-[10px] sm:text-xs font-semibold text-white/80">
                                 {initialsFromProfile(m.profile)}
                               </div>
-                              <div>
-                                <p className="text-sm text-white/85">
+                              <div className="min-w-0">
+                                <p className="text-xs sm:text-sm text-white/85 truncate">
                                   {(() => {
                                     const firstName =
                                       m.profile?.first_name?.trim();
@@ -637,7 +637,7 @@ export default function DashboardClient({
                                     </span>
                                   ) : null}
                                 </p>
-                                <p className="text-xs text-white/45">
+                                <p className="text-[10px] sm:text-xs text-white/45 truncate">
                                   {m.profile?.roll_no ?? "—"} •{" "}
                                   {m.profile?.branch ?? "—"}
                                 </p>
@@ -649,30 +649,30 @@ export default function DashboardClient({
                       </div>
                     </div>
 
-                    <div className="rounded-2xl bg-black/30 ring-1 ring-white/10 p-5">
-                      <p className="text-sm font-semibold text-white/85">
+                    <div className="rounded-xl md:rounded-2xl bg-black/30 ring-1 ring-white/10 p-4 sm:p-5">
+                      <p className="text-xs sm:text-sm font-semibold text-white/85">
                         Join Requests
                       </p>
-                      <p className="mt-1 text-sm text-white/55">
+                      <p className="mt-1 text-xs sm:text-sm text-white/55">
                         {isLeader
                           ? "Approve or reject pending requests."
                           : "Only the leader can approve requests."}
                       </p>
 
-                      <div className="mt-4 space-y-3">
+                      <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
                         {teamState.pendingMembers.length === 0 ? (
-                          <p className="text-sm text-white/55">
+                          <p className="text-xs sm:text-sm text-white/55">
                             No pending requests.
                           </p>
                         ) : (
                           teamState.pendingMembers.map((m) => (
                             <div
                               key={m.user_id}
-                              className="rounded-2xl bg-black/35 ring-1 ring-white/10 p-4"
+                              className="rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10 p-3 sm:p-4"
                             >
-                              <div className="flex items-start justify-between gap-3">
-                                <div>
-                                  <p className="text-sm font-semibold text-white/85">
+                              <div className="flex items-start justify-between gap-2 sm:gap-3">
+                                <div className="min-w-0">
+                                  <p className="text-xs sm:text-sm font-semibold text-white/85 truncate">
                                     {(() => {
                                       const firstName =
                                         m.profile?.first_name?.trim();
@@ -689,7 +689,7 @@ export default function DashboardClient({
                                       );
                                     })()}
                                   </p>
-                                  <p className="mt-1 text-xs text-white/50">
+                                  <p className="mt-1 text-[10px] sm:text-xs text-white/50">
                                     {m.profile?.roll_no ?? "—"} •{" "}
                                     {m.profile?.branch ?? "—"} •{" "}
                                     {m.profile?.phone ?? "—"}
@@ -697,7 +697,7 @@ export default function DashboardClient({
                                 </div>
 
                                 {isLeader ? (
-                                  <div className="flex gap-2">
+                                  <div className="flex gap-1.5 sm:gap-2 shrink-0">
                                     <button
                                       onClick={async () => {
                                         try {
@@ -720,7 +720,7 @@ export default function DashboardClient({
                                           setLoading(false);
                                         }
                                       }}
-                                      className="rounded-full bg-white text-black px-3 py-1.5 text-xs font-semibold hover:opacity-90 transition"
+                                      className="rounded-full bg-white text-black px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold hover:opacity-90 transition"
                                     >
                                       Accept
                                     </button>
@@ -746,7 +746,7 @@ export default function DashboardClient({
                                           setLoading(false);
                                         }
                                       }}
-                                      className="rounded-full bg-white/10 text-white px-3 py-1.5 text-xs font-semibold ring-1 ring-white/15 hover:bg-white/15 transition"
+                                      className="rounded-full bg-white/10 text-white px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold ring-1 ring-white/15 hover:bg-white/15 transition"
                                     >
                                       Reject
                                     </button>
@@ -763,16 +763,16 @@ export default function DashboardClient({
                   </div>
                 ) : null}
 
-                <div className="mt-6 flex flex-wrap gap-2">
+                <div className="mt-4 md:mt-6 flex flex-col sm:flex-row gap-2">
                   <Link
                     href="/"
-                    className="rounded-full bg-white/10 text-white px-5 py-2.5 text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition"
+                    className="rounded-full bg-white/10 text-white px-5 py-2.5 text-xs sm:text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition text-center w-full sm:w-auto"
                   >
                     Back to Home
                   </Link>
                   <Link
                     href="/contact"
-                    className="rounded-full bg-white text-black px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition"
+                    className="rounded-full bg-white text-black px-5 py-2.5 text-xs sm:text-sm font-semibold hover:opacity-90 transition text-center w-full sm:w-auto"
                   >
                     Support
                   </Link>
@@ -784,12 +784,12 @@ export default function DashboardClient({
                 title="Leaderboard"
                 subtitle="Overall standings + event-wise podiums (updates automatically when results are declared)."
               >
-                <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2 rounded-full bg-black/30 ring-1 ring-white/10 p-1">
                     <button
                       onClick={() => setLbView("overall")}
                       className={cx(
-                        "rounded-full px-4 py-2 text-sm font-semibold transition",
+                        "rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition flex-1 sm:flex-initial",
                         lbView === "overall"
                           ? "bg-white text-black"
                           : "text-white/80 hover:bg-white/10",
@@ -800,7 +800,7 @@ export default function DashboardClient({
                     <button
                       onClick={() => setLbView("events")}
                       className={cx(
-                        "rounded-full px-4 py-2 text-sm font-semibold transition",
+                        "rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition flex-1 sm:flex-initial",
                         lbView === "events"
                           ? "bg-white text-black"
                           : "text-white/80 hover:bg-white/10",
@@ -812,26 +812,26 @@ export default function DashboardClient({
 
                   <button
                     onClick={refreshLeaderboard}
-                    className="rounded-full bg-white/10 text-white px-4 py-2 text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition"
+                    className="rounded-full bg-white/10 text-white px-4 py-2 text-xs sm:text-sm font-semibold ring-1 ring-white/15 hover:bg-white/15 transition w-full sm:w-auto"
                   >
                     Refresh
                   </button>
                 </div>
 
                 {lbLoading ? (
-                  <div className="mt-5 text-sm text-white/60">
+                  <div className="mt-4 sm:mt-5 text-xs sm:text-sm text-white/60">
                     Loading leaderboard…
                   </div>
                 ) : lbErr ? (
-                  <div className="mt-5 rounded-2xl bg-black/35 ring-1 ring-white/10 p-4 text-sm text-white/75">
+                  <div className="mt-4 sm:mt-5 rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10 p-3 sm:p-4 text-xs sm:text-sm text-white/75">
                     Error: {lbErr}
                   </div>
                 ) : !lb ? (
-                  <div className="mt-5 text-sm text-white/60">No data.</div>
+                  <div className="mt-4 sm:mt-5 text-xs sm:text-sm text-white/60">No data.</div>
                 ) : lbView === "overall" ? (
-                  <div className="mt-5">
+                  <div className="mt-4 sm:mt-5">
                     {lb.overall.length === 0 ? (
-                      <div className="rounded-2xl bg-black/35 ring-1 ring-white/10 p-4 text-sm text-white/70">
+                      <div className="rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10 p-3 sm:p-4 text-xs sm:text-sm text-white/70">
                         No overall results yet. This will appear once event
                         results are declared.
                       </div>
@@ -839,8 +839,8 @@ export default function DashboardClient({
                       <>
                         {/* My row summary */}
                         {isAccepted ? (
-                          <div className="mb-4 rounded-2xl bg-black/30 ring-1 ring-white/10 p-4">
-                            <div className="flex flex-wrap items-center gap-2">
+                          <div className="mb-3 sm:mb-4 rounded-xl md:rounded-2xl bg-black/30 ring-1 ring-white/10 p-3 sm:p-4">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                               <Pill tone="strong">Your Team</Pill>
                               <Pill>{teamState.team.name}</Pill>
                               <Pill>
@@ -928,9 +928,9 @@ export default function DashboardClient({
                     )}
                   </div>
                 ) : (
-                  <div className="mt-5 space-y-3">
+                  <div className="mt-4 sm:mt-5 space-y-2 sm:space-y-3">
                     {lb.events.length === 0 ? (
-                      <div className="rounded-2xl bg-black/35 ring-1 ring-white/10 p-4 text-sm text-white/70">
+                      <div className="rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10 p-3 sm:p-4 text-xs sm:text-sm text-white/70">
                         No events found.
                       </div>
                     ) : (
@@ -943,7 +943,7 @@ export default function DashboardClient({
                         return (
                           <div
                             key={ev.id}
-                            className="rounded-2xl bg-black/35 ring-1 ring-white/10"
+                            className="rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10"
                           >
                             <button
                               onClick={() =>
@@ -951,11 +951,11 @@ export default function DashboardClient({
                                   cur === ev.id ? null : ev.id,
                                 )
                               }
-                              className="w-full px-4 py-4 flex items-start justify-between gap-3 text-left"
+                              className="w-full px-3 sm:px-4 py-3 sm:py-4 flex items-start justify-between gap-2 sm:gap-3 text-left"
                             >
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <p className="truncate text-sm font-semibold text-white/90">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                  <p className="truncate text-xs sm:text-sm font-semibold text-white/90">
                                     {ev.name}
                                   </p>
                                   <Pill>{ev.category}</Pill>
@@ -972,7 +972,7 @@ export default function DashboardClient({
                                   ) : null}
                                 </div>
 
-                                <p className="mt-1 text-xs text-white/55">
+                                <p className="mt-1 text-[10px] sm:text-xs text-white/55 line-clamp-1">
                                   {ev.date
                                     ? `Date: ${fmtDate(ev.date)} • `
                                     : ""}
@@ -983,9 +983,9 @@ export default function DashboardClient({
 
                               <div className="shrink-0 mt-0.5 text-white/70">
                                 {open ? (
-                                  <ChevronUp size={18} />
+                                  <ChevronUp size={16} className="sm:w-[18px] sm:h-[18px]" />
                                 ) : (
-                                  <ChevronDown size={18} />
+                                  <ChevronDown size={16} className="sm:w-[18px] sm:h-[18px]" />
                                 )}
                               </div>
                             </button>
@@ -1002,19 +1002,19 @@ export default function DashboardClient({
                                   }}
                                   className="overflow-hidden"
                                 >
-                                  <div className="px-4 pb-4">
+                                  <div className="px-3 sm:px-4 pb-3 sm:pb-4">
                                     {ev.description ? (
-                                      <div className="mb-3 text-sm text-white/55 leading-relaxed">
+                                      <div className="mb-2 sm:mb-3 text-xs sm:text-sm text-white/55 leading-relaxed">
                                         {ev.description}
                                       </div>
                                     ) : null}
 
                                     {ev.results.length === 0 ? (
-                                      <div className="rounded-2xl bg-black/30 ring-1 ring-white/10 p-4 text-sm text-white/70">
+                                      <div className="rounded-xl md:rounded-2xl bg-black/30 ring-1 ring-white/10 p-3 sm:p-4 text-xs sm:text-sm text-white/70">
                                         Results not declared yet.
                                       </div>
                                     ) : (
-                                      <div className="space-y-2">
+                                      <div className="space-y-1.5 sm:space-y-2">
                                         {ev.results.map((r) => {
                                           const isMe =
                                             !!myTeamId &&
@@ -1023,28 +1023,28 @@ export default function DashboardClient({
                                             <div
                                               key={`${ev.id}-${r.team.id}-${r.rank}`}
                                               className={cx(
-                                                "rounded-2xl px-4 py-3 ring-1",
+                                                "rounded-xl md:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ring-1",
                                                 isMe
                                                   ? "bg-white/10 ring-white/25"
                                                   : "bg-black/30 ring-white/10",
                                               )}
                                             >
-                                              <div className="flex items-center justify-between gap-3">
-                                                <div className="min-w-0">
-                                                  <div className="flex items-center gap-2">
-                                                    <span className="text-base">
+                                              <div className="flex items-center justify-between gap-2 sm:gap-3">
+                                                <div className="min-w-0 flex-1">
+                                                  <div className="flex items-center gap-1.5 sm:gap-2">
+                                                    <span className="text-sm sm:text-base shrink-0">
                                                       {medal(r.rank)}
                                                     </span>
-                                                    <span className="text-sm font-semibold text-white/85 truncate">
+                                                    <span className="text-xs sm:text-sm font-semibold text-white/85 truncate">
                                                       {r.team.name}
                                                     </span>
                                                     {isMe ? (
-                                                      <span className="text-xs font-semibold text-white/70">
+                                                      <span className="text-[10px] sm:text-xs font-semibold text-white/70 shrink-0">
                                                         (You)
                                                       </span>
                                                     ) : null}
                                                   </div>
-                                                  <div className="mt-1 text-xs text-white/55">
+                                                  <div className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-white/55">
                                                     Rank #{r.rank}
                                                     {r.declared_at
                                                       ? ` • Declared: ${fmtDate(
@@ -1055,10 +1055,10 @@ export default function DashboardClient({
                                                 </div>
 
                                                 <div className="shrink-0 text-right">
-                                                  <div className="text-sm font-semibold text-white/90">
+                                                  <div className="text-xs sm:text-sm font-semibold text-white/90">
                                                     {r.marks}
                                                   </div>
-                                                  <div className="text-xs text-white/55">
+                                                  <div className="text-[10px] sm:text-xs text-white/55">
                                                     marks
                                                   </div>
                                                 </div>
@@ -1195,12 +1195,12 @@ function JoinTeamModal({
   return (
     <ModalShell open={open} onClose={onClose} title="Join Team via Code">
       {err ? (
-        <div className="mb-4 rounded-2xl bg-black/35 ring-1 ring-white/10 p-3 text-sm text-white/75">
+        <div className="mb-3 sm:mb-4 rounded-xl md:rounded-2xl bg-black/35 ring-1 ring-white/10 p-2.5 sm:p-3 text-xs sm:text-sm text-white/75">
           {err}
         </div>
       ) : null}
 
-      <label className="block text-xs uppercase tracking-wide text-white/45">
+      <label className="block text-[10px] sm:text-xs uppercase tracking-wide text-white/45">
         Team code
       </label>
       <input
@@ -1208,7 +1208,7 @@ function JoinTeamModal({
         onChange={(e) => setCode(e.target.value.toUpperCase())}
         placeholder="e.g., A7KQ2Z"
         className={cx(
-          "mt-2 w-full rounded-2xl bg-black/40 px-4 py-3 text-sm text-white/90 outline-none",
+          "mt-2 w-full rounded-xl md:rounded-2xl bg-black/40 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white/90 outline-none",
           "ring-1 ring-white/10 focus:ring-white/25 tracking-[0.18em]",
         )}
       />
@@ -1232,7 +1232,7 @@ function JoinTeamModal({
           }
         }}
         className={cx(
-          "mt-5 w-full rounded-full px-5 py-3 text-sm font-semibold transition",
+          "mt-4 sm:mt-5 w-full rounded-full px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition",
           busy
             ? "bg-white/20 text-white/60"
             : "bg-white text-black hover:opacity-90",
@@ -1241,7 +1241,7 @@ function JoinTeamModal({
         {busy ? "Requesting…" : "Request to Join"}
       </button>
 
-      <p className="mt-4 text-sm text-white/55">
+      <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-white/55 leading-relaxed">
         Your request will be pending until the team leader approves it. Teams
         have a maximum of 5 accepted members.
       </p>
