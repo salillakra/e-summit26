@@ -100,11 +100,16 @@ export default function SpeakersSection() {
 
     const onScroll = () => scheduleUpdate();
     scroller.addEventListener("scroll", onScroll, { passive: true });
-    updateActive();
+    
+    // Defer initial update to avoid synchronous setState inside effect
+    const timeout = setTimeout(() => {
+      updateActive();
+    }, 0);
 
     return () => {
       scroller.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(rafRef.current);
+      clearTimeout(timeout);
     };
   }, []);
 
