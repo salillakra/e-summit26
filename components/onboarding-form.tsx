@@ -23,15 +23,23 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-function formatSupabaseError(err: any) {
+function formatSupabaseError(err: unknown) {
   if (!err) return "Unknown error";
 
   // Supabase/PostgREST errors are often plain objects, not instances of Error
-  const msg =
-    err.message || err.error_description || err.error || "Request failed";
-  const details = err.details ? `\nDetails: ${err.details}` : "";
-  const hint = err.hint ? `\nHint: ${err.hint}` : "";
-  const code = err.code ? `\nCode: ${err.code}` : "";
+  const e = err as {
+    message?: string;
+    error_description?: string;
+    error?: string;
+    details?: string;
+    hint?: string;
+    code?: string;
+  };
+
+  const msg = e.message || e.error_description || e.error || "Request failed";
+  const details = e.details ? `\nDetails: ${e.details}` : "";
+  const hint = e.hint ? `\nHint: ${e.hint}` : "";
+  const code = e.code ? `\nCode: ${e.code}` : "";
 
   return `${msg}${details}${hint}${code}`;
 }
