@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback } from "react";
-import { BriefcaseBusiness, Banknote, Armchair, Code2 } from "lucide-react";
+import { BriefcaseBusiness, Banknote, Armchair, Code2, LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -66,7 +66,7 @@ function Marquee({ className = "" }) {
 }
 
 interface AudienceCardProps {
-  item: { key: string; label: string; icon: React.ElementType; desc: string; };
+  item: { key: string; label: string; icon: LucideIcon; desc: string; };
   active: boolean;
   onClick: () => void;
 }
@@ -138,7 +138,7 @@ export default function ForWhomSection() {
         {/* Heading */}
         <h2 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight font-sans">
           <AnimatedBlurText
-            lines={["Who Should Definitely Attend the", " "]}
+            lines={["Who Should Definitely Attend the",""]}
             liteText="E-Summit'26"
           />
         </h2>
