@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-type ProfileLite = { id: string; roll_no: string; branch: string; phone: string; whatsapp_no: string };
+type ProfileLite = { id: string; roll_no: string; branch: string; phone: string; whatsapp_no: string; first_name: string; last_name: string };
 
 export async function GET() {
     const supabase = await createClient();
@@ -58,7 +58,7 @@ export async function GET() {
     if (allUserIds.length) {
         const { data: profiles } = await supabase
             .from("profiles")
-            .select("id, roll_no, branch, phone, whatsapp_no")
+            .select("id, roll_no, branch, phone, whatsapp_no, first_name, last_name")
             .in("id", allUserIds);
 
         (profiles ?? []).forEach((p) => profilesMap.set(p.id, p as ProfileLite));
