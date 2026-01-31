@@ -41,14 +41,14 @@ export async function GET() {
         .order("role", { ascending: true });
 
     // Pending requests (leader only)
-    const { data: pendingMembers } = isLeader
+    const { data: pendingMembers } = (isLeader && team)
         ? await supabase
             .from("team_members")
             .select("user_id, role, status, joined_at")
             .eq("team_id", team.id)
             .eq("status", "pending")
             .order("joined_at", { ascending: true })
-        : { data: [] as any[] };
+        : { data: [] as { user_id: string; role: string; status: string; joined_at: string }[] };
 
     const allUserIds = Array.from(
         new Set([...(acceptedMembers ?? []).map(m => m.user_id), ...(pendingMembers ?? []).map(m => m.user_id)])
@@ -64,7 +64,7 @@ export async function GET() {
         (profiles ?? []).forEach((p) => profilesMap.set(p.id, p as ProfileLite));
     }
 
-    const decorate = (rows: any[]) =>
+    const decorate = (rows: { user_id: string; role: string; status: string; joined_at?: string }[] | null) =>
         (rows ?? []).map((r) => ({ ...r, profile: profilesMap.get(r.user_id) ?? null }));
 
     return NextResponse.json(
