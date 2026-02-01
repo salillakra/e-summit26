@@ -7,6 +7,7 @@ import AnimatedBlurText from "@/components/AnimatedBlurText";
 import { useRef } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import ScrollBelow from "./ScrollBelow";
 
 export default function VenueHero() {
   const prefersReducedMotion = useReducedMotion();
@@ -24,7 +25,7 @@ export default function VenueHero() {
       className="relative w-full overflow-hidden bg-black text-white"
     >
       {/* Responsive height: 1/4 on mobile, 3/4 on desktop */}
-      <div className="relative h-[100svh] w-full">
+      <div className="relative h-svh w-full">
         {/* Silk background */}
         <div className="absolute inset-0">
           <GradientBlinds
@@ -36,7 +37,7 @@ export default function VenueHero() {
             spotlightRadius={0.6}
             spotlightSoftness={1}
             spotlightOpacity={1}
-            mouseDampening={0.50}
+            mouseDampening={0.5}
             distortAmount={0}
             shineDirection="left"
             mixBlendMode="lighten"
@@ -52,7 +53,7 @@ export default function VenueHero() {
         {/* Title */}
         <div className="relative mx-auto h-full max-w-7xl px-6">
           {/* Use items-end and a tiny pb so baseline kisses the floor */}
-          <div className="flex h-full flex-col items-center justify-end pb-4 md:pb-6 gap-3">
+          <div className="flex h-full flex-col items-center justify-center pb-4 md:pb-6 gap-3">
             <AnimatedBlurText
               lines={["WHERE IT "]}
               liteText="BEGINS"
@@ -76,7 +77,7 @@ export default function VenueHero() {
                 // Responsive text size
                 "text-[clamp(48px,14vw,205px)]",
                 // Responsive line height
-                "leading-[0.82] md:leading-[0.84]"
+                "leading-[0.82] md:leading-[0.84]",
               )}
               style={{
                 textShadow:
@@ -111,6 +112,10 @@ export default function VenueHero() {
 
         {/* Hard bottom edge like screenshot (subtle) */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-b from-transparent to-black" />
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto">
+          <ScrollBelow />
+        </div>
       </div>
     </section>
   );

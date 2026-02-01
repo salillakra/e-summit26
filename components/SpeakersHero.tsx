@@ -2,6 +2,7 @@
 
 import GradientBlinds from "./GradientBlinds";
 import AnimatedBlurText from "@/components/AnimatedBlurText";
+import ScrollBelow from "@/components/ScrollBelow";
 import { cn } from "@/lib/utils";
 import { m, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
@@ -68,7 +69,7 @@ export default function SpeakersHero() {
         {/* Title */}
         <div className="relative mx-auto h-full max-w-7xl px-6">
           {/* Use items-end and a tiny pb so baseline kisses the floor */}
-          <div className="flex h-full flex-col items-center justify-end pb-4 md:pb-6 gap-3">
+          <div className="flex h-full flex-col items-center justify-center pb-4 md:pb-6 gap-3">
             {/* Animated subheading */}
             <AnimatedBlurText
               lines={["MEET THE "]}
@@ -127,6 +128,11 @@ export default function SpeakersHero() {
         </div>
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-b from-transparent to-black" />
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto">
+          <ScrollBelow />
+        </div>
       </div>
     </section>
   );
