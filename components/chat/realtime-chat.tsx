@@ -66,7 +66,7 @@ export const RealtimeChat = ({
   });
 
   // Group messages by date
-  const groupMessagesByDate = (messages: typeof dbMessages) => {
+  const groupMessagesByDate = useCallback((messages: typeof dbMessages) => {
     const groups: { date: string; messages: typeof dbMessages }[] = [];
     let currentDate = '';
 
@@ -85,7 +85,7 @@ export const RealtimeChat = ({
     });
 
     return groups;
-  };
+  }, []);
 
   // Merge database messages with realtime messages
   const allMessages = useMemo(() => {
@@ -110,7 +110,7 @@ export const RealtimeChat = ({
   // Group messages by date
   const groupedMessages = useMemo(() => {
     return groupMessagesByDate(allMessages);
-  }, [allMessages]);
+  }, [allMessages, groupMessagesByDate]);
 
   // Request notification permission on mount
   useEffect(() => {
@@ -361,7 +361,7 @@ export const RealtimeChat = ({
         ) : null}
 
         <div className="space-y-1">
-          {groupedMessages.map((group, groupIndex) => (
+          {groupedMessages.map((group) => (
             <div key={group.date} className="space-y-1">
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t border-border" />

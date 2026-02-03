@@ -157,7 +157,7 @@ export function useRealtimeChat({
       supabase.removeChannel(newChannel);
       setChannel(null);
     };
-  }, [roomName, supabase, connectAttempt]);
+  }, [roomName, supabase, connectAttempt, userId, username]);
 
   const sendMessage = useCallback(
     async (content: string, messageId?: string) => {

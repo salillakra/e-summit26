@@ -267,7 +267,7 @@ export function DashboardCards({
           <div className="py-8 text-center">
             <Users className="h-12 w-12 mx-auto text-white/20 mb-4" />
             <p className="text-sm text-white/60 mb-6">
-              Browse events and create or join teams for the competitions you're
+              Browse events and create or join teams for the competitions you&apos;re
               interested in. Teams are specific to each event.
             </p>
             <Link
