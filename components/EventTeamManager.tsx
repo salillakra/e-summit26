@@ -26,6 +26,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { uploadFile } from "@/lib/upload";
 
 interface EventTeamManagerProps {
   eventId: string;
@@ -72,6 +73,19 @@ export default function EventTeamManager({
   const [copied, setCopied] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [showRegistrationConfirmDialog, setShowRegistrationConfirmDialog] = useState(false);
+
+  // New fields for B Plan and Investor Summit
+  const [presentationUrl, setPresentationUrl] = useState("");
+  const [productPhotosUrl, setProductPhotosUrl] = useState("");
+  const [achievements, setAchievements] = useState("");
+  
+  // Upload states
+  const [uploadingPresentation, setUploadingPresentation] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+
+  const isBPlan = eventName.toLowerCase().includes("b plan");
+  const isInvestorSummit = eventName.toLowerCase().includes("investor summit");
 
   const supabase = createClient();
   const { toast } = useToast();
@@ -410,6 +424,39 @@ export default function EventTeamManager({
     }
   };
 
+  const handleFileUpload = async (file: File, type: 'presentation' | 'photos') => {
+    if (!team) return;
+    
+    const setUploading = type === 'presentation' ? setUploadingPresentation : setUploadingPhotos;
+    const setUrl = type === 'presentation' ? setPresentationUrl : setProductPhotosUrl;
+    
+    setUploading(true);
+    try {
+      const url = await uploadFile(file, `teams/${team.id}/${type}`);
+      
+      if (type === 'photos') {
+        // Append for photos if they want multiple, or just comma separate
+        setUrl(prev => prev ? `${prev}, ${url}` : url);
+      } else {
+        setUrl(url);
+      }
+
+      toast({
+        title: "Upload Successful",
+        description: `${type === 'presentation' ? 'Presentation' : 'Product photo'} uploaded successfully.`,
+      });
+    } catch (error) {
+      console.error(`Error uploading ${type}:`, error);
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "Failed to upload file",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const registerForEvent = async () => {
     if (!team || !user) return;
 
@@ -421,6 +468,9 @@ export default function EventTeamManager({
         body: JSON.stringify({
           event_id: eventId,
           team_id: team.id,
+          presentation_url: presentationUrl,
+          product_photos_url: productPhotosUrl,
+          achievements: achievements,
         }),
       });
 
@@ -486,7 +536,7 @@ export default function EventTeamManager({
                   Already Registered!
                 </h3>
                 <p className="text-green-300 text-sm">
-                  Your team "{team.name}" is already registered for {eventName}
+                  Your team &quot;{team.name}&quot; is already registered for {eventName}
                 </p>
               </div>
             </div>
@@ -694,42 +744,166 @@ export default function EventTeamManager({
                         Team is eligible with {acceptedMembers.length} members
                       </p>
                     </div>
+                      <Button
+                        onClick={() => {
+                          if (isBPlan || isInvestorSummit) {
+                            setShowRegistrationConfirmDialog(true);
+                          } else {
+                            registerForEvent();
+                          }
+                        }}
+                        disabled={registering}
+                        className="w-full bg-[#8F00AF] hover:bg-[#8F00AF]/90 text-white"
+                        size="lg"
+                      >
+                        {registering ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                            Registering...
+                          </>
+                        ) : (
+                          <>
+                            <Trophy className="h-4 w-4 mr-2" />
+                            Register Team for Event
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {isPending && (
+                <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-4 w-4 text-yellow-400" />
+                    <p className="text-sm text-gray-400">
+                      Your request is pending approval from the team leader
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Registration Details Dialog */}
+        <Dialog open={showRegistrationConfirmDialog} onOpenChange={setShowRegistrationConfirmDialog}>
+          <DialogContent className="bg-black border-white/10 text-white max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Finalize Registration</DialogTitle>
+              <DialogDescription className="text-gray-400 text-sm">
+                Please provide the required details for {eventName}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">
+                  Presentation/Pitch Deck (PDF or Link) <span className="text-red-500">*</span>
+                </Label>
+                <div className="space-y-3">
+                  <Input
+                    value={presentationUrl}
+                    onChange={(e) => setPresentationUrl(e.target.value)}
+                    placeholder="Paste link or upload PDF"
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="file"
+                      accept=".pdf,.ppt,.pptx"
+                      className="hidden"
+                      id="presentation-upload"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file, 'presentation');
+                      }}
+                    />
                     <Button
-                      onClick={registerForEvent}
-                      disabled={registering}
-                      className="w-full bg-[#8F00AF] hover:bg-[#8F00AF]/90 text-white"
-                      size="lg"
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('presentation-upload')?.click()}
+                      className="border-white/10 w-full"
+                      disabled={uploadingPresentation}
                     >
-                      {registering ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                          Registering...
-                        </>
-                      ) : (
-                        <>
-                          <Trophy className="h-4 w-4 mr-2" />
-                          Register Team for Event
-                        </>
-                      )}
+                      {uploadingPresentation ? "Uploading..." : "Upload from Device"}
                     </Button>
                   </div>
-                )}
-              </>
-            )}
-
-            {isPending && (
-              <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-yellow-400" />
-                  <p className="text-sm text-gray-400">
-                    Your request is pending approval from the team leader
-                  </p>
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+
+              {isInvestorSummit && (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-white">
+                      Product Photos <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="space-y-3">
+                      <Input
+                        value={productPhotosUrl}
+                        onChange={(e) => setProductPhotosUrl(e.target.value)}
+                        placeholder="Photos link or upload"
+                        className="bg-white/5 border-white/10 text-white"
+                      />
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          id="photos-upload"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]; // Handling single for now, can be updated for multiple if needed
+                            if (file) handleFileUpload(file, 'photos');
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById('photos-upload')?.click()}
+                          className="border-white/10 w-full"
+                          disabled={uploadingPhotos}
+                        >
+                          {uploadingPhotos ? "Uploading..." : "Upload from Device"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-white">
+                      Achievements (Brief)
+                    </Label>
+                    <Input
+                      value={achievements}
+                      onChange={(e) => setAchievements(e.target.value)}
+                      placeholder="Key milestones/achievements"
+                      className="bg-white/5 border-white/10 text-white"
+                    />
+                  </div>
+                </>
+              )}
+
+              <Button
+                onClick={() => {
+                  setShowRegistrationConfirmDialog(false);
+                  registerForEvent();
+                }}
+                disabled={
+                  registering || 
+                  uploadingPresentation ||
+                  uploadingPhotos ||
+                  !presentationUrl ||
+                  (isInvestorSummit && !productPhotosUrl)
+                }
+                className="w-full bg-[#8F00AF] hover:bg-[#8F00AF]/90"
+              >
+                {registering ? "Registering..." : "Confirm Registration"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
       {/* Create Team Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>

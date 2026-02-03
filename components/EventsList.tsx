@@ -43,6 +43,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { uploadFile } from "@/lib/upload";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@/hooks/use-window-size";
 import AnimatedBlurText from "./AnimatedBlurText";
@@ -98,6 +101,15 @@ export default function EventsList() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loadingTeamMembers, setLoadingTeamMembers] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+  // New fields for B Plan and Investor Summit
+  const [presentationUrl, setPresentationUrl] = useState("");
+  const [productPhotosUrl, setProductPhotosUrl] = useState("");
+  const [achievements, setAchievements] = useState("");
+  
+  // Upload states
+  const [uploadingPresentation, setUploadingPresentation] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   const supabase = createClient();
   const { toast } = useToast();
@@ -262,6 +274,30 @@ export default function EventsList() {
     }
   };
 
+  const handleFileUpload = async (file: File, type: 'presentation' | 'photos', teamId: string) => {
+    const setUploading = type === 'presentation' ? setUploadingPresentation : setUploadingPhotos;
+    const setUrl = type === 'presentation' ? setPresentationUrl : setProductPhotosUrl;
+    
+    setUploading(true);
+    try {
+      const url = await uploadFile(file, `teams/${teamId}/${type}`);
+      setUrl(url);
+      toast({
+        title: "Upload Successful",
+        description: `${type === 'presentation' ? 'Presentation' : 'Product photos'} uploaded successfully.`,
+      });
+    } catch (error) {
+      console.error(`Error uploading ${type}:`, error);
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "Failed to upload file",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleRegister = async (eventId: string, teamId: string) => {
     if (!user) return;
 
@@ -272,6 +308,9 @@ export default function EventsList() {
         team_id: teamId,
         user_id: user.id,
         status: "confirmed",
+        presentation_url: presentationUrl,
+        product_photos_url: productPhotosUrl,
+        achievements: achievements,
       });
 
       if (error) {
@@ -313,6 +352,9 @@ export default function EventsList() {
       setSelectedTeam(null);
       setTeamMembers([]);
       setCurrentEventId(null);
+      setPresentationUrl("");
+      setProductPhotosUrl("");
+      setAchievements("");
     }
   };
 
@@ -345,6 +387,13 @@ export default function EventsList() {
   };
 
   const eligibleTeams = getEligibleTeams();
+
+  const currentEvent = useMemo(() => {
+    return events.find(e => e.id === currentEventId);
+  }, [events, currentEventId]);
+
+  const isBPlan = currentEvent?.name.toLowerCase().includes("b plan");
+  const isInvestorSummit = currentEvent?.name.toLowerCase().includes("investor summit");
 
   // sort events to show Investor's Summit and B Plan first and cache the result
   const sortedEvents = useMemo(() => {
@@ -706,6 +755,102 @@ export default function EventsList() {
                           </div>
                         )}
                       </div>
+
+                      {/* Additional Registration Fields */}
+                      {(isBPlan || isInvestorSummit) && (
+                        <div className="space-y-4 pt-4 border-t border-white/10 mt-4">
+                          <h4 className="text-base sm:text-lg font-bold text-white mb-3">
+                            Additional Information
+                          </h4>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-xs text-gray-400">
+                              Presentation/Pitch Deck (PDF or Link) <span className="text-red-500">*</span>
+                            </Label>
+                            <div className="space-y-3">
+                              <Input
+                                value={presentationUrl}
+                                onChange={(e) => setPresentationUrl(e.target.value)}
+                                placeholder="Paste link or upload PDF"
+                                className="bg-white/5 border-white/10 text-white text-sm"
+                              />
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="file"
+                                  accept=".pdf,.ppt,.pptx"
+                                  className="hidden"
+                                  id={`presentation-upload-${selectedTeam?.id}`}
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file && selectedTeam) handleFileUpload(file, 'presentation', selectedTeam.id);
+                                  }}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => document.getElementById(`presentation-upload-${selectedTeam?.id}`)?.click()}
+                                  className="border-white/10 w-full text-xs"
+                                  disabled={uploadingPresentation}
+                                >
+                                  {uploadingPresentation ? "Uploading..." : "Upload from Device"}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {isInvestorSummit && (
+                            <>
+                              <div className="space-y-2">
+                                <Label className="text-xs text-gray-400">
+                                  Product Photos <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="space-y-3">
+                                  <Input
+                                    value={productPhotosUrl}
+                                    onChange={(e) => setProductPhotosUrl(e.target.value)}
+                                    placeholder="Photos link or upload"
+                                    className="bg-white/5 border-white/10 text-white text-sm"
+                                  />
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      id={`photos-upload-${selectedTeam?.id}`}
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file && selectedTeam) handleFileUpload(file, 'photos', selectedTeam.id);
+                                      }}
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => document.getElementById(`photos-upload-${selectedTeam?.id}`)?.click()}
+                                      className="border-white/10 w-full text-xs"
+                                      disabled={uploadingPhotos}
+                                    >
+                                      {uploadingPhotos ? "Uploading..." : "Upload from Device"}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-xs text-gray-400">
+                                  Achievements (Brief)
+                                </Label>
+                                <Input
+                                  value={achievements}
+                                  onChange={(e) => setAchievements(e.target.value)}
+                                  placeholder="Key milestones/achievements"
+                                  className="bg-white/5 border-white/10 text-white text-sm"
+                                />
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </>
@@ -727,7 +872,14 @@ export default function EventsList() {
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleConfirmRegistration}
-                    disabled={registeringEventId !== null || loadingTeamMembers}
+                    disabled={
+                      registeringEventId !== null || 
+                      loadingTeamMembers ||
+                      uploadingPresentation ||
+                      uploadingPhotos ||
+                      !presentationUrl ||
+                      (isInvestorSummit && !productPhotosUrl)
+                    }
                     className="bg-gradient-to-r from-[#733080] to-[#9000b1] hover:from-[#5a2666] hover:to-[#800099] disabled:opacity-50 disabled:cursor-not-allowed text-white w-full sm:w-auto text-base font-semibold h-12 rounded-xl shadow-lg"
                   >
                     {registeringEventId ? (
