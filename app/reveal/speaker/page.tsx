@@ -436,13 +436,62 @@ export default function SpeakerRevealPage() {
                           initial={{ opacity: 1 }}
                           exit={{ opacity: 0, scale: 0.95, filter: "blur(20px)" }}
                           transition={{ duration: 0.8 }}
-                          className="absolute inset-0"
+                          className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-[#0a0015] via-[#1a0525] to-[#0a0015]"
                         >
-                          <img
-                            src="/reveal/images/paritosh_avatar.jpg"
-                            alt="Mystery Speaker"
-                            className="absolute inset-0 w-full h-full object-cover"
-                          />
+                          {/* Background Glow Effect */}
+                          <div className="absolute inset-0 bg-[#733080]/20 blur-[100px] animate-pulse" />
+                          
+                          {/* Themed Accent */}
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-[#B05EC2]/10 rounded-full blur-3xl" />
+                          <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#733080]/10 rounded-full blur-3xl" />
+
+                          {/* Stylized Mystery Placeholder */}
+                          <div className="relative z-10 flex flex-col items-center">
+                            <motion.div
+                              animate={{ 
+                                scale: [1, 1.05, 1],
+                                rotate: [0, 5, -5, 0]
+                              }}
+                              transition={{ 
+                                duration: 4, 
+                                repeat: Infinity, 
+                                ease: "easeInOut" 
+                              }}
+                              className="relative"
+                            >
+                              <div className="absolute inset-0 bg-[#B05EC2]/20 blur-2xl rounded-full" />
+                              <div className="h-32 w-32 md:h-48 md:w-48 rounded-full border-2 border-dashed border-[#B05EC2]/40 flex items-center justify-center relative overflow-hidden bg-black/40 backdrop-blur-md">
+                                <motion.div
+                                  animate={{ opacity: [0.3, 0.6, 0.3] }}
+                                  transition={{ duration: 2, repeat: Infinity }}
+                                  className="absolute inset-0 bg-linear-to-b from-transparent via-[#733080]/10 to-transparent"
+                                />
+                                <span className="text-6xl md:text-8xl font-black text-white/10 select-none">?</span>
+                                
+                                {/* Scanning line effect */}
+                                <motion.div
+                                  animate={{ top: ["-10%", "110%"] }}
+                                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                  className="absolute left-0 right-0 h-[2px] bg-linear-to-r from-transparent via-[#B05EC2]/50 to-transparent z-20"
+                                />
+                              </div>
+                              
+                              {/* Orbiting elements */}
+                              <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                className="absolute -inset-4 border border-[#733080]/30 rounded-full border-t-transparent"
+                              />
+                            </motion.div>
+                            
+                            <motion.p
+                              animate={{ opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="mt-8 text-[#B05EC2] font-semibold tracking-[0.3em] text-xs uppercase"
+                            >
+                              Identity Locked
+                            </motion.p>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
