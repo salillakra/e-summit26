@@ -135,16 +135,7 @@ export default function EventsList() {
       setEvents(eventsData || []);
 
       if (user) {
-        // Fetch user's registrations
-        const { data: regsData, error: regsError } = await supabase
-          .from("event_registrations")
-          .select("event_id, team_id, status")
-          .eq("user_id", user.id);
-
-        if (regsError) throw regsError;
-        setRegistrations(regsData || []);
-
-        // Fetch user's teams with accepted member count
+        // Fetch user's teams with accepted member count first
         const { data: teamsData, error: teamsError } = await supabase
           .from("team_members")
           .select(
@@ -162,13 +153,16 @@ export default function EventsList() {
 
         if (teamsError) throw teamsError;
 
-        // Get member counts for each team
+        // Get member counts for each team and collect team IDs
         const teamsWithCounts: Team[] = [];
+        const teamIds: string[] = [];
 
         for (const teamData of teamsData || []) {
           const team = Array.isArray(teamData.teams)
             ? teamData.teams[0]
             : teamData.teams;
+          
+          teamIds.push(team.id);
 
           const { count } = await supabase
             .from("team_members")
@@ -185,6 +179,38 @@ export default function EventsList() {
         }
 
         setUserTeams(teamsWithCounts);
+
+        // Fetch user's registrations based on their teams
+        // This ensures if ANY member of a team registered the team, all members see it
+        let regsData: Registration[] = [];
+        if (teamIds.length > 0) {
+          const { data, error: regsError } = await supabase
+            .from("event_registrations")
+            .select("event_id, team_id, status")
+            .in("team_id", teamIds);
+
+          if (regsError) throw regsError;
+          regsData = data || [];
+        }
+        
+        // Also check if user registered as an individual if that's possible (legacy or fallback)
+        const { data: individualRegs, error: indError } = await supabase
+          .from("event_registrations")
+          .select("event_id, team_id, status")
+          .eq("user_id", user.id);
+        
+        if (!indError && individualRegs) {
+          // Merge and de-duplicate by event_id
+          const mergedRegs = [...regsData];
+          individualRegs.forEach(ind => {
+            if (!mergedRegs.some(r => r.event_id === ind.event_id)) {
+              mergedRegs.push(ind);
+            }
+          });
+          regsData = mergedRegs;
+        }
+
+        setRegistrations(regsData);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -400,9 +426,9 @@ export default function EventsList() {
   }, [events, currentEventId]);
 
   const isBPlan = currentEvent?.name.toLowerCase().includes("b plan");
-  const isInvestorSummit = currentEvent?.name
-    .toLowerCase()
-    .includes("investor summit");
+  const isInvestorSummit =
+    currentEvent?.name.toLowerCase().includes("investor's") &&
+    currentEvent?.name.toLowerCase().includes("summit");
 
   // sort events to show Investor's Summit and B Plan first and cache the result
   const sortedEvents = useMemo(() => {
@@ -518,7 +544,15 @@ export default function EventsList() {
                               className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                            <div className="absolute top-3 right-3">
+                            {registered && (
+                              <div className="absolute inset-0 bg-[#9000b1]/10 flex items-center justify-center backdrop-blur-[2px]">
+                                <Badge className="bg-green-500 text-white border-none px-4 py-1.5 text-sm font-bold shadow-2xl">
+                                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                                  REGISTERED
+                                </Badge>
+                              </div>
+                            )}
+                            <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
                               <Badge
                                 variant="outline"
                                 className={`uppercase text-[9px] md:text-[10px] font-semibold backdrop-blur-md bg-black/50 border-white/30 ${getCategoryColor(event.category)}`}

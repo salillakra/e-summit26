@@ -85,7 +85,9 @@ export default function EventTeamManager({
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   const isBPlan = eventName.toLowerCase().includes("b plan");
-  const isInvestorSummit = eventName.toLowerCase().includes("investor summit");
+  const isInvestorSummit =
+    eventName.toLowerCase().includes("investor's") &&
+    eventName.toLowerCase().includes("summit");
 
   const supabase = createClient();
   const { toast } = useToast();
