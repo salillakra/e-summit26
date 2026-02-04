@@ -61,6 +61,8 @@ type Event = {
   image_url: string | null;
   doc: string | null;
   max_participants: number | null;
+  min_team_size: number | null;
+  max_team_size: number | null;
   is_active: boolean;
 };
 
