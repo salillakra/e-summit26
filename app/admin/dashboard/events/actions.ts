@@ -15,6 +15,8 @@ export type EventFormData = {
   image_url: string | null;
   doc: string | null;
   max_participants: number | null;
+  min_team_size: number | null;
+  max_team_size: number | null;
   is_active: boolean;
 };
 
@@ -37,6 +39,8 @@ export async function createEvent(data: EventFormData) {
         image_url: data.image_url || null,
         doc: data.doc || null,
         max_participants: data.max_participants || null,
+        min_team_size: data.min_team_size ?? 2,
+        max_team_size: data.max_team_size ?? 4,
         is_active: data.is_active,
       })
       .select()
@@ -77,6 +81,8 @@ export async function updateEvent(id: string, data: EventFormData) {
         image_url: data.image_url || null,
         doc: data.doc || null,
         max_participants: data.max_participants || null,
+        min_team_size: data.min_team_size ?? 2,
+        max_team_size: data.max_team_size ?? 4,
         is_active: data.is_active,
       })
       .eq("id", id)

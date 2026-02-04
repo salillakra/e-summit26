@@ -42,6 +42,8 @@ type Event = {
   image_url: string | null;
   doc: string | null;
   max_participants: number | null;
+  min_team_size: number | null;
+  max_team_size: number | null;
   is_active: boolean;
 };
 
@@ -76,6 +78,8 @@ export function EventFormDialog({
     image_url: event?.image_url || "",
     doc: event?.doc || "",
     max_participants: event?.max_participants || null,
+    min_team_size: event?.min_team_size ?? 2,
+    max_team_size: event?.max_team_size ?? 4,
     is_active: event?.is_active ?? true,
   });
 
@@ -341,6 +345,47 @@ export function EventFormDialog({
                 placeholder="Enter maximum number of participants"
                 min="1"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="min_team_size">Min Team Size</Label>
+                <Input
+                  id="min_team_size"
+                  type="number"
+                  value={formData.min_team_size ?? 2}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      min_team_size: e.target.value
+                        ? parseInt(e.target.value)
+                        : 2,
+                    })
+                  }
+                  placeholder="2"
+                  min="1"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="max_team_size">Max Team Size</Label>
+                <Input
+                  id="max_team_size"
+                  type="number"
+                  value={formData.max_team_size ?? 4}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      max_team_size: e.target.value
+                        ? parseInt(e.target.value)
+                        : 4,
+                    })
+                  }
+                  placeholder="4"
+                  min="1"
+                  required
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-2">
