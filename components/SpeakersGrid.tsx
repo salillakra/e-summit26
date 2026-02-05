@@ -32,11 +32,13 @@ function SocialBadge({
       aria-label={label}
       className={[
         "grid place-items-center",
-        "h-10 w-10 rounded-xl",
-        "bg-white/90 text-black",
+        "h-9 w-9 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl",
+        "bg-white/95 text-black",
         "shadow-[0_10px_28px_rgba(0,0,0,0.35)]",
-        "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-        "hover:scale-[1.04] active:scale-[0.98]",
+        "backdrop-blur-md",
+        "transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        "hover:bg-white hover:scale-110 hover:shadow-[0_12px_40px_rgba(192,70,255,0.4)]",
+        "active:scale-[0.98]",
       ].join(" ")}
     >
       {children}
@@ -129,7 +131,7 @@ export default function SpeakersGrid() {
         <div className="mt-12 relative">
           {/* CONTENT LAYER */}
           <div className="relative">
-            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 sm:gap-8 md:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               {speakers.map((sp, i) => {
                 const isMaskedCard = MASK_SPEAKERS && i !== 0;
 
@@ -142,16 +144,20 @@ export default function SpeakersGrid() {
                     className={[
                       "min-w-0",
                       isMaskedCard
-                        ? "pointer-events-none opacity-85 blur-[16px] saturate-[1.05] scale-[1.01]"
+                        ? "pointer-events-none opacity-85 blur-[8px] sm:blur-[16px] saturate-[1.05] scale-[1.01]"
                         : "relative z-30",
                     ].join(" ")}
                   >
                     {/* Card */}
                     <div
                       className={[
-                        "group relative overflow-hidden rounded-[28px]",
-                        "bg-white/3 ring-1 ring-white/10",
-                        "shadow-[0_28px_110px_rgba(0,0,0,0.75)]",
+                        "group relative overflow-hidden rounded-2xl sm:rounded-[26px]",
+                        "bg-gradient-to-br from-white/[0.08] to-white/[0.03]",
+                        "ring-1 ring-white/[0.08]",
+                        "shadow-[0_20px_80px_rgba(0,0,0,0.6)] sm:shadow-[0_28px_110px_rgba(0,0,0,0.75)]",
+                        "backdrop-blur-sm",
+                        "transition-all duration-500",
+                        "hover:ring-white/20 hover:shadow-[0_25px_90px_rgba(192,70,255,0.25)]",
                       ].join(" ")}
                     >
                       <div className="relative w-full aspect-4/5">
@@ -164,13 +170,14 @@ export default function SpeakersGrid() {
                           className={[
                             "h-full w-full object-cover",
                             isMaskedCard ? "grayscale" : "",
-                            "transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                            "group-hover:grayscale-0 group-hover:saturate-[1.06]",
+                            "transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                            "group-hover:grayscale-0 group-hover:saturate-[1.1] group-hover:scale-105",
                           ].join(" ")}
                         />
 
                         {/* subtle inner vignette */}
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                         {/* socials (only on revealed Paritosh card) */}
                         <div
@@ -183,13 +190,15 @@ export default function SpeakersGrid() {
                             href={sp.instagramHref ?? "#"}
                             label="Instagram"
                           >
-                            <Instagram size={18} />
+                            <Instagram size={16} className="sm:hidden" />
+                            <Instagram size={18} className="hidden sm:block" />
                           </SocialBadge>
                           <SocialBadge
                             href={sp.linkedinHref ?? "#"}
                             label="LinkedIn"
                           >
-                            <Linkedin size={18} />
+                            <Linkedin size={16} className="sm:hidden" />
+                            <Linkedin size={18} className="hidden sm:block" />
                           </SocialBadge>
                         </div>
                       </div>
@@ -215,82 +224,112 @@ export default function SpeakersGrid() {
             <div
               className="
                 absolute z-20
-                right-0 top-0 bottom-0
-                w-[calc(100%-320px)]
-                sm:w-[calc(100%-340px)]
-                lg:w-[calc(100%-260px)]
-                flex items-center justify-center
-                px-4
+                top-0 left-0 right-0
                 pointer-events-none
+                hidden sm:block
               "
             >
-              <div className="w-full max-w-2xl pointer-events-auto">
-                <div className="relative overflow-hidden rounded-[28px] border border-white/12 bg-white/[0.06] p-5 sm:p-7 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+              <div className="w-full px-4 sm:px-6 lg:px-0 pointer-events-auto absolute inset-0 flex items-center justify-center lg:items-start lg:justify-end lg:pr-0">
+                <div className="relative overflow-hidden rounded-2xl sm:rounded-[24px] md:rounded-[28px] border border-white/15 bg-gradient-to-br from-white/[0.08] to-white/[0.04] backdrop-blur-xl p-4 sm:p-5 md:p-6 lg:p-7 shadow-[0_25px_90px_rgba(0,0,0,0.5),0_0_60px_rgba(192,70,255,0.2)] sm:shadow-[0_35px_130px_rgba(0,0,0,0.6),0_0_80px_rgba(192,70,255,0.25)] w-full sm:max-w-2xl lg:max-w-3xl">
                   {/* subtle glow + vignette inside the panel */}
                   <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-white/10 blur-[70px]" />
-                    <div className="absolute -right-20 -bottom-28 h-72 w-72 rounded-full bg-white/6 blur-[80px]" />
-                    <div className="absolute inset-0 [background:radial-gradient(120%_80%_at_50%_0%,rgba(255,255,255,0.10)_0%,transparent_55%,rgba(0,0,0,0.35)_100%)]" />
-                    <div className="absolute inset-0 rounded-[28px] ring-1 ring-white/10" />
+                    <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#c046ff]/30 blur-[90px] animate-pulse" />
+                    <div
+                      className="absolute -right-20 -bottom-28 h-72 w-72 rounded-full bg-[#ff4fd8]/20 blur-[100px] animate-pulse"
+                      style={{ animationDelay: "1s" }}
+                    />
+                    <div className="absolute inset-0 [background:radial-gradient(120%_80%_at_50%_0%,rgba(255,255,255,0.12)_0%,transparent_55%,rgba(0,0,0,0.40)_100%)]" />
+                    <div className="absolute inset-0 rounded-2xl sm:rounded-[24px] md:rounded-[28px] ring-1 ring-white/15" />
                   </div>
 
                   <div className="relative">
                     {/* top row */}
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-2 text-[11px] font-semibold tracking-[0.26em] uppercase text-white/90">
-                        <span className="relative flex h-2 w-2">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70 opacity-40" />
-                          <span className="relative inline-flex h-2 w-2 rounded-full bg-white/80" />
+                      <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-white/20 bg-gradient-to-r from-purple-500/15 to-pink-500/15 backdrop-blur-md px-3 sm:px-3.5 py-1.5 sm:py-2 text-[10px] sm:text-[11px] font-semibold tracking-[0.20em] sm:tracking-[0.26em] uppercase text-white shadow-[0_4px_20px_rgba(192,70,255,0.2)]">
+                        <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-400/70 opacity-60" />
+                          <span className="relative inline-flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-purple-300 shadow-[0_0_8px_rgba(192,70,255,0.6)]" />
                         </span>
-                        Lineup Revealing Soon
-                        <Sparkles size={14} className="opacity-90" />
+                        <span className="hidden sm:inline">
+                          Lineup Revealing Soon
+                        </span>
+                        <span className="sm:hidden">Revealing Soon</span>
+                        <Sparkles
+                          size={12}
+                          className="sm:hidden opacity-90 text-purple-200"
+                        />
+                        <Sparkles
+                          size={14}
+                          className="hidden sm:block opacity-90 text-purple-200"
+                        />
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
                         <a
                           href="#"
-                          className="grid h-10 w-10 place-items-center rounded-2xl border border-white/12 bg-white/10 text-white/90 hover:bg-white/15"
+                          className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl border border-white/15 bg-white/10 text-white/90 hover:bg-white/20 hover:border-white/25 transition-all duration-300"
                           aria-label="Instagram"
                         >
-                          <Instagram size={18} />
+                          <Instagram size={16} className="sm:hidden" />
+                          <Instagram size={18} className="hidden sm:block" />
                         </a>
                         <a
                           href="#"
-                          className="grid h-10 w-10 place-items-center rounded-2xl border border-white/12 bg-white/10 text-white/90 hover:bg-white/15"
+                          className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl border border-white/15 bg-white/10 text-white/90 hover:bg-white/20 hover:border-white/25 transition-all duration-300"
                           aria-label="LinkedIn"
                         >
-                          <Linkedin size={18} />
+                          <Linkedin size={16} className="sm:hidden" />
+                          <Linkedin size={18} className="hidden sm:block" />
                         </a>
                       </div>
                     </div>
 
-                    <div className="mt-5 text-2xl sm:text-3xl font-semibold leading-tight tracking-tight">
+                    <div className="mt-4 sm:mt-5 text-xl sm:text-2xl md:text-3xl font-semibold leading-tight tracking-tight">
                       Speakers coming soon.
                       <div className="text-white/75">
-                        Announcements rolling out shortly.
+                        <span className="hidden sm:inline">
+                          Announcements rolling out shortly.
+                        </span>
+                        <span className="sm:hidden">More coming soon.</span>
                       </div>
                     </div>
 
                     {/* subtext */}
-                    <div className="mt-2 text-sm sm:text-base text-white/65 leading-relaxed">
-                      We’re curating a high-signal lineup across AI, startups,
-                      product, and growth. Follow along — the reveal starts
-                      soon.
+                    <div className="mt-2 text-xs sm:text-sm md:text-base text-white/65 leading-relaxed">
+                      <span className="hidden sm:inline">
+                        We're curating a high-signal lineup across AI, startups,
+                        product, and growth. Follow along — the reveal starts
+                        soon.
+                      </span>
+                      <span className="sm:hidden">
+                        Stay tuned for announcements.
+                      </span>
                     </div>
 
                     {/* CTA row */}
-                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div className="mt-5 sm:mt-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
                       <a
                         href="/reveal/speaker"
                         className="
-                          inline-flex items-center gap-2 rounded-full
-                          bg-white/90 px-5 py-3 text-sm font-semibold text-black
-                          shadow-[0_18px_50px_rgba(0,0,0,0.35)]
-                          hover:bg-white
+                          inline-flex items-center gap-1.5 sm:gap-2 rounded-full
+                          bg-gradient-to-r from-white to-purple-50 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-black
+                          shadow-[0_18px_50px_rgba(0,0,0,0.35),0_0_30px_rgba(192,70,255,0.3)]
+                          hover:from-purple-100 hover:to-pink-100 hover:shadow-[0_20px_60px_rgba(192,70,255,0.5)]
+                          transition-all duration-300 hover:scale-105
                         "
                       >
-                        Reveal Speakers
-                        <ArrowRight size={16} className="opacity-90" />
+                        <span className="hidden sm:inline">
+                          Reveal Speakers
+                        </span>
+                        <span className="sm:hidden">Reveal</span>
+                        <ArrowRight
+                          size={14}
+                          className="sm:hidden opacity-90"
+                        />
+                        <ArrowRight
+                          size={16}
+                          className="hidden sm:block opacity-90"
+                        />
                       </a>
                     </div>
                   </div>

@@ -157,7 +157,7 @@ export default function EventSchedule() {
         {
           time: "2:00 PM TO 4:00 PM",
           kind: "simple",
-          title: "Workshop by INC42",
+          title: "Workshop",
           location: "CAT HALL",
         },
         {
