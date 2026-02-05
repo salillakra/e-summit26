@@ -57,18 +57,6 @@ export default function Sponsorship() {
                 We&apos;re partnering with incredible brands and organizations.
                 Stay tuned for the big reveal!
               </p>
-
-              <div className="mt-8 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[#733080] animate-pulse" />
-                <div
-                  className="h-2 w-2 rounded-full bg-[#B05EC2] animate-pulse"
-                  style={{ animationDelay: "0.3s" }}
-                />
-                <div
-                  className="h-2 w-2 rounded-full bg-[#733080] animate-pulse"
-                  style={{ animationDelay: "0.6s" }}
-                />
-              </div>
             </div>
           </div>
         </div>
