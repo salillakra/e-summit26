@@ -63,16 +63,36 @@ export async function  POST(req: NextRequest) {
       );
     }
 
-    // Verify team has minimum required members (2-4)
+    // Get event team size requirements
+    const { data: event, error: eventError } = await supabase
+      .from("events")
+      .select("min_team_size, max_team_size")
+      .eq("id", event_id)
+      .single();
+
+    if (eventError || !event) {
+      return NextResponse.json(
+        { error: "Event not found" },
+        { status: 404 }
+      );
+    }
+
+    const minSize = event.min_team_size ?? 2;
+    const maxSize = event.max_team_size ?? 4;
+
+    // Verify team has required number of members
     const { count } = await supabase
       .from("team_members")
       .select("*", { count: "exact", head: true })
       .eq("team_id", team_id)
       .eq("status", "accepted");
 
-    if (!count || count < 2 || count > 4) {
+    if (!count || count < minSize || count > maxSize) {
+      const sizeMsg = minSize === maxSize 
+        ? `exactly ${minSize} member${minSize === 1 ? '' : 's'}`
+        : `${minSize}-${maxSize} accepted members`;
       return NextResponse.json(
-        { error: "Team must have 2-4 accepted members to register" },
+        { error: `Team must have ${sizeMsg} to register` },
         { status: 400 }
       );
     }

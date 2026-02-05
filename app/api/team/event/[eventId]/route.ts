@@ -111,6 +111,16 @@ export async function GET(
       profile: profilesMap.get(r.user_id) ?? null,
     }));
 
+  // Fetch event team size requirements
+  const { data: eventData } = await supabase
+    .from("events")
+    .select("min_team_size, max_team_size")
+    .eq("id", eventId)
+    .single();
+
+  const minSize = eventData?.min_team_size ?? 2;
+  const maxSize = eventData?.max_team_size ?? 4;
+
   return NextResponse.json(
     {
       membershipStatus: membership.status,
@@ -118,8 +128,8 @@ export async function GET(
       team,
       acceptedMembers: decorate(acceptedMembers ?? []),
       pendingMembers: decorate(pendingMembers ?? []),
-      maxSize: 5,
-      minEligibleSize: 2,
+      maxSize: maxSize,
+      minEligibleSize: minSize,
     },
     {
       headers: { "Cache-Control": "no-store" },

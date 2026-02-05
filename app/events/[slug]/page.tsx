@@ -20,6 +20,8 @@ interface Event {
   max_participants: number | null;
   max_score: number;
   is_active: boolean;
+  min_team_size: number | null;
+  max_team_size: number | null;
 }
 
 async function getEvent(slug: string): Promise<Event | null> {

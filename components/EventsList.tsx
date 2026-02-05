@@ -162,7 +162,7 @@ export default function EventsList() {
           const team = Array.isArray(teamData.teams)
             ? teamData.teams[0]
             : teamData.teams;
-          
+
           teamIds.push(team.id);
 
           const { count } = await supabase
@@ -193,18 +193,18 @@ export default function EventsList() {
           if (regsError) throw regsError;
           regsData = data || [];
         }
-        
+
         // Also check if user registered as an individual if that's possible (legacy or fallback)
         const { data: individualRegs, error: indError } = await supabase
           .from("event_registrations")
           .select("event_id, team_id, status")
           .eq("user_id", user.id);
-        
+
         if (!indError && individualRegs) {
           // Merge and de-duplicate by event_id
           const mergedRegs = [...regsData];
-          individualRegs.forEach(ind => {
-            if (!mergedRegs.some(r => r.event_id === ind.event_id)) {
+          individualRegs.forEach((ind) => {
+            if (!mergedRegs.some((r) => r.event_id === ind.event_id)) {
               mergedRegs.push(ind);
             }
           });
@@ -235,9 +235,8 @@ export default function EventsList() {
   };
 
   const getEligibleTeams = () => {
-    return userTeams.filter(
-      (team) => team.member_count >= 2 && team.member_count <= 4,
-    );
+    // Return teams with at least 1 member (validation happens per-event at registration)
+    return userTeams.filter((team) => team.member_count >= 1);
   };
 
   const fetchTeamMembers = async (teamId: string) => {
@@ -268,9 +267,9 @@ export default function EventsList() {
 
     if (eligibleTeams.length === 0) {
       toast({
-        title: "No Eligible Team",
+        title: "No Team Found",
         description:
-          "You need a team with 2-4 accepted members to register. Create or join a team first.",
+          "You need to create or join a team to register for events.",
         variant: "destructive",
       });
       return;
@@ -510,8 +509,8 @@ export default function EventsList() {
               <div className="flex items-center gap-2 text-orange-400">
                 <AlertCircle className="h-5 w-5" />
                 <p>
-                  You need a team with 1-4 accepted members to register for
-                  events. Create or join a team first.
+                  You need to create or join a team to register for events. Each
+                  event has its own team size requirements.
                 </p>
               </div>
             </div>
@@ -534,7 +533,7 @@ export default function EventsList() {
                     >
                       <Link
                         href={`/events/${event.slug}`}
-                        className="block flex-grow"
+                        className="block grow"
                       >
                         {event.image_url && (
                           <div className="relative h-56 overflow-hidden">

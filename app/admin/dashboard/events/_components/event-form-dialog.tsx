@@ -29,6 +29,7 @@ import { generateSlug } from "@/lib/utils/slug";
 import { EVENT_MDX_TEMPLATE } from "@/lib/templates/event-mdx-template";
 import MDXEditor from "@/components/MDXEditor";
 import FullScreenMDXEditor from "@/components/FullScreenMDXEditor";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 type Event = {
   id: string;
@@ -301,17 +302,11 @@ export function EventFormDialog({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="date">Date & Time (Optional)</Label>
-              <Input
-                id="date"
-                type="datetime-local"
-                value={
-                  formData.date
-                    ? new Date(formData.date).toISOString().slice(0, 16)
-                    : ""
-                }
-                onChange={(e) =>
-                  setFormData({ ...formData, date: e.target.value })
+              <Label>Date & Time (Optional)</Label>
+              <DateTimePicker
+                date={formData.date ? new Date(formData.date) : undefined}
+                setDate={(date) =>
+                  setFormData({ ...formData, date: date?.toISOString() || "" })
                 }
               />
             </div>

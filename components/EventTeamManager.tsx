@@ -88,6 +88,10 @@ export default function EventTeamManager({
   const [uploadingPresentation, setUploadingPresentation] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
+  // Event team size requirements
+  const [minTeamSize, setMinTeamSize] = useState(2);
+  const [maxTeamSize, setMaxTeamSize] = useState(4);
+
   const isBPlan = eventName.toLowerCase().includes("b plan");
   const isInvestorSummit =
     eventName.toLowerCase().includes("investor's") &&
@@ -104,6 +108,18 @@ export default function EventTeamManager({
 
   const fetchTeamData = async () => {
     try {
+      // Fetch event details for team size requirements
+      const { data: eventData } = await supabase
+        .from("events")
+        .select("min_team_size, max_team_size")
+        .eq("id", eventId)
+        .single();
+
+      if (eventData) {
+        setMinTeamSize(eventData.min_team_size ?? 2);
+        setMaxTeamSize(eventData.max_team_size ?? 4);
+      }
+
       const {
         data: { user: currentUser },
       } = await supabase.auth.getUser();
@@ -558,7 +574,9 @@ export default function EventTeamManager({
   const pendingMembers =
     team?.members.filter((m) => m.status === "pending") || [];
   const isLeader = team?.team_leader_id === user?.id;
-  const isEligible = acceptedMembers.length >= 2 && acceptedMembers.length <= 4;
+  const isEligible =
+    acceptedMembers.length >= minTeamSize &&
+    acceptedMembers.length <= maxTeamSize;
   const userMembership = team?.members.find((m) => m.user_id === user?.id);
   const isPending = userMembership?.status === "pending";
 
@@ -631,7 +649,9 @@ export default function EventTeamManager({
             </CardTitle>
             <p className="text-gray-400 text-sm">
               You need to create or join a team to register for {eventName}.
-              Teams must have 1-4 members to be eligible.
+              {minTeamSize === maxTeamSize
+                ? ` This event requires exactly ${minTeamSize} member${minTeamSize === 1 ? "" : "s"}.`
+                : ` Teams must have ${minTeamSize}-${maxTeamSize} members to be eligible.`}
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -809,9 +829,9 @@ export default function EventTeamManager({
                 {!isEligible && (
                   <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
                     <p className="text-sm text-gray-400">
-                      {acceptedMembers.length < 2
-                        ? `Need at least ${2 - acceptedMembers.length} more member(s) to register`
-                        : `Team has too many members (max 4)`}
+                      {acceptedMembers.length < minTeamSize
+                        ? `Need at least ${minTeamSize - acceptedMembers.length} more member(s) to register`
+                        : `Team has too many members (max ${maxTeamSize})`}
                     </p>
                   </div>
                 )}
@@ -1004,7 +1024,9 @@ export default function EventTeamManager({
               Create Team for {eventName}
             </DialogTitle>
             <DialogDescription className="text-gray-400 text-sm">
-              You&apos;ll need 2-4 members to register.
+              {minTeamSize === maxTeamSize
+                ? `This event requires exactly ${minTeamSize} member${minTeamSize === 1 ? "" : "s"}.`
+                : `You'll need ${minTeamSize}-${maxTeamSize} members to register.`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4">
