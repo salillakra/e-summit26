@@ -16,6 +16,7 @@ export interface UserWithDetails {
   phone: string | null;
   branch: string | null;
   team: string | null;
+  gender: string | null;
 }
 
 export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
@@ -44,13 +45,25 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
     throw new Error("Unauthorized: Admin or Moderator access required");
   }
 
-  // Use service client to get all users
   const supabaseAdmin = await createServiceClient();
 
-  // Get all auth users with pagination (listUsers has a default limit of 50)
-  let allUsers: any[] = [];
+  type AuthUser = {
+    id: string;
+    email?: string;
+    user_metadata?: {
+      full_name?: string;
+      avatar_url?: string;
+      [key: string]: unknown;
+    };
+    last_sign_in_at?: string | null;
+    email_confirmed_at?: string | null;
+    created_at: string;
+    [key: string]: unknown;
+  };
+
+  let allUsers: AuthUser[] = [];
   let page = 1;
-  const perPage = 1000; // Max allowed by Supabase
+  const perPage = 1000;
   
   while (true) {
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.listUsers({
@@ -63,9 +76,8 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
       throw new Error("Failed to fetch users");
     }
 
-    allUsers = allUsers.concat(authData.users);
+    allUsers = allUsers.concat(authData.users as unknown as AuthUser[]);
     
-    // If we got fewer users than perPage, we've reached the last page
     if (authData.users.length < perPage) {
       break;
     }
@@ -92,7 +104,7 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
   // Batch fetch all profiles
   const { data: profiles } = await supabaseAdmin
     .from("profiles")
-    .select("id, roll_no, phone, branch, onboarding_completed")
+    .select("id, roll_no, phone, branch, onboarding_completed, gender")
     .in("id", userIds);
 
   // Batch fetch all team members
@@ -134,6 +146,7 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
       phone: profile?.phone || null,
       branch: profile?.branch || null,
       team: (teamMember?.teams as unknown as TeamType | null)?.name || null,
+      gender: profile?.gender || null,
     };
   });
 
