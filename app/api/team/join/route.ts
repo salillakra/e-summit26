@@ -50,14 +50,29 @@ export async function POST(req: Request) {
     }
   }
 
-  // Team full check (accepted only)
+  // Team full check (accepted only) based on event max_team_size
+  let maxTeamSize = 4;
+  if (team.event_id) {
+    const { data: eventData } = await supabase
+      .from("events")
+      .select("max_team_size")
+      .eq("id", team.event_id)
+      .single();
+
+    if (typeof eventData?.max_team_size === "number") {
+      maxTeamSize = eventData.max_team_size;
+    }
+  }
+
   const { count } = await supabase
     .from("team_members")
     .select("*", { count: "exact", head: true })
     .eq("team_id", team.id)
     .eq("status", "accepted");
 
-  if ((count ?? 0) >= 5) return NextResponse.json({ error: "TEAM_FULL" }, { status: 409 });
+  if ((count ?? 0) >= maxTeamSize) {
+    return NextResponse.json({ error: "TEAM_FULL" }, { status: 409 });
+  }
 
 
   // Upsert the joining record (allows re-applying after cancellation/rejection)

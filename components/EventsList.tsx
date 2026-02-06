@@ -22,7 +22,7 @@ import {
   AlertCircle,
   ArrowRight,
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -116,7 +116,6 @@ export default function EventsList() {
   const [uploadingFaultLinesPdf, setUploadingFaultLinesPdf] = useState(false);
 
   const supabase = createClient();
-  const { toast } = useToast();
   const router = useRouter();
   const { width, height } = useWindowSize();
 
@@ -218,11 +217,7 @@ export default function EventsList() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load events. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to load events. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -269,11 +264,9 @@ export default function EventsList() {
     const eligibleTeams = getEligibleTeams();
 
     if (eligibleTeams.length === 0) {
-      toast({
-        title: "No Team Found",
+      toast.error("No Team Found", {
         description:
           "You need to create or join a team to register for events.",
-        variant: "destructive",
       });
       return;
     }
@@ -325,18 +318,14 @@ export default function EventsList() {
     try {
       const url = await uploadFile(file, `teams/${teamId}/${type}`);
       setUrl(url);
-      toast({
-        title: "Upload Successful",
+      toast.success("Upload Successful", {
         description: `${type === "presentation" ? "Presentation" : type === "photos" ? "Product photos" : "Fault Lines PDF"} uploaded successfully.`,
       });
     } catch (error) {
       console.error(`Error uploading ${type}:`, error);
-      toast({
-        title: "Upload Failed",
-        description:
-          error instanceof Error ? error.message : "Failed to upload file",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload file",
+      );
     } finally {
       setUploading(false);
     }
@@ -361,10 +350,8 @@ export default function EventsList() {
 
       if (error) {
         if (error.code === "23505") {
-          toast({
-            title: "Already Registered",
+          toast.error("Already Registered", {
             description: "You are already registered for this event.",
-            variant: "destructive",
           });
         } else {
           throw error;
@@ -381,10 +368,8 @@ export default function EventsList() {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      toast({
-        title: "Registration Failed",
+      toast.error("Registration Failed", {
         description: "Failed to register for the event. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setRegisteringEventId(null);

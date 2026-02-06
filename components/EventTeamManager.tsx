@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import {
@@ -111,7 +111,6 @@ export default function EventTeamManager({
   const isFaultLines = eventName.toLowerCase().includes("fault lines");
 
   const supabase = createClient();
-  const { toast } = useToast();
   const router = useRouter();
   const { width, height } = useWindowSize();
 
@@ -269,11 +268,7 @@ export default function EventTeamManager({
       }
     } catch (error) {
       console.error("Error fetching team data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load team data.",
-        variant: "destructive",
-      });
+      toast.error("Failed to load team data.");
     } finally {
       setLoading(false);
     }
@@ -299,8 +294,7 @@ export default function EventTeamManager({
         throw new Error(data.error || "Failed to create team");
       }
 
-      toast({
-        title: "Team Created!",
+      toast.success("Team Created!", {
         description: `Team "${newTeamName}" has been created for ${eventName}.`,
       });
 
@@ -309,12 +303,9 @@ export default function EventTeamManager({
       await fetchTeamData();
     } catch (error) {
       console.error("Error creating team:", error);
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to create team.",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create team.",
+      );
     } finally {
       setCreating(false);
     }
@@ -322,11 +313,7 @@ export default function EventTeamManager({
 
   const joinTeam = async () => {
     if (!user || !joinCode.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a team code.",
-        variant: "destructive",
-      });
+      toast.error("Please enter a team code.");
       return;
     }
 
@@ -360,7 +347,7 @@ export default function EventTeamManager({
         } else if (data.error === "ALREADY_IN_TEAM_OR_PENDING") {
           errorMessage = "You already have a team or pending request.";
         } else if (data.error === "TEAM_FULL") {
-          errorMessage = "This team is full (maximum 4 members).";
+          errorMessage = `This team is full (maximum ${maxTeamSize} members).`;
         } else if (data.error === "JOIN_REQUEST_FAILED") {
           errorMessage = data.details || "Failed to send join request.";
         } else if (data.error) {
@@ -368,16 +355,13 @@ export default function EventTeamManager({
         }
 
         // Show error toast immediately
-        toast({
-          title: "Cannot Join Team",
+        toast.error("Cannot Join Team", {
           description: errorMessage,
-          variant: "destructive",
         });
         return;
       }
 
-      toast({
-        title: "Request Sent!",
+      toast.success("Request Sent!", {
         description: "Your request to join the team has been sent.",
       });
 
@@ -386,12 +370,9 @@ export default function EventTeamManager({
       await fetchTeamData();
     } catch (error) {
       console.error("Error joining team:", error);
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to join team.",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Failed to join team.",
+      );
     } finally {
       setJoining(false);
     }
@@ -401,8 +382,7 @@ export default function EventTeamManager({
     if (team?.slug) {
       navigator.clipboard.writeText(team.slug);
       setCopied(true);
-      toast({
-        title: "Copied!",
+      toast.success("Copied!", {
         description: "Team code copied to clipboard.",
       });
       setTimeout(() => setCopied(false), 2000);
@@ -428,20 +408,16 @@ export default function EventTeamManager({
         throw new Error(data.error || "Failed to approve member");
       }
 
-      toast({
-        title: "Member Approved",
+      toast.success("Member Approved", {
         description: "Team member has been approved successfully.",
       });
 
       await fetchTeamData();
     } catch (error) {
       console.error("Error approving member:", error);
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to approve member.",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Failed to approve member.",
+      );
     } finally {
       setApprovingMemberId(null);
     }
@@ -466,20 +442,16 @@ export default function EventTeamManager({
         throw new Error(data.error || "Failed to reject member");
       }
 
-      toast({
-        title: "Member Rejected",
+      toast.success("Member Rejected", {
         description: "Request has been rejected.",
       });
 
       await fetchTeamData();
     } catch (error) {
       console.error("Error rejecting member:", error);
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to reject member.",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reject member.",
+      );
     } finally {
       setRejectingMemberId(null);
     }
@@ -515,18 +487,14 @@ export default function EventTeamManager({
         setUrl(url);
       }
 
-      toast({
-        title: "Upload Successful",
+      toast.success("Upload Successful", {
         description: `${type === "presentation" ? "Presentation" : type === "photos" ? "Product photo" : "Fault Lines PDF"} uploaded successfully.`,
       });
     } catch (error) {
       console.error(`Error uploading ${type}:`, error);
-      toast({
-        title: "Upload Failed",
-        description:
-          error instanceof Error ? error.message : "Failed to upload file",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload file",
+      );
     } finally {
       setUploading(false);
     }
@@ -566,8 +534,7 @@ export default function EventTeamManager({
 
       const whatsappLink = eventData?.whatsapp_group_link;
 
-      toast({
-        title: "Registered!",
+      toast.success("Registered!", {
         description: whatsappLink
           ? `Team "${team.name}" has been registered for ${eventName}. Check for the WhatsApp group link!`
           : `Team "${team.name}" has been registered for ${eventName}.`,
@@ -590,12 +557,9 @@ export default function EventTeamManager({
       }, 5000);
     } catch (error) {
       console.error("Error registering:", error);
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to register.",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Failed to register.",
+      );
     } finally {
       setRegistering(false);
     }
@@ -767,7 +731,7 @@ export default function EventTeamManager({
                   variant="outline"
                   className="text-xs bg-white/5 border-white/20"
                 >
-                  {acceptedMembers.length}/4
+                  {acceptedMembers.length}/{maxTeamSize}
                 </Badge>
               </div>
               <div className="space-y-2">
