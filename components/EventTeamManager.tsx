@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { uploadFile } from "@/lib/upload";
+import Confetti from "react-confetti";
+import { useWindowSize } from "@/hooks/use-window-size";
 
 interface EventTeamManagerProps {
   eventId: string;
@@ -78,15 +80,25 @@ export default function EventTeamManager({
   const [whatsappGroupLink, setWhatsappGroupLink] = useState<string | null>(
     null,
   );
+  const [approvingMemberId, setApprovingMemberId] = useState<string | null>(
+    null,
+  );
+  const [rejectingMemberId, setRejectingMemberId] = useState<string | null>(
+    null,
+  );
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // New fields for B Plan and Investor Summit
   const [presentationUrl, setPresentationUrl] = useState("");
   const [productPhotosUrl, setProductPhotosUrl] = useState("");
   const [achievements, setAchievements] = useState("");
+  const [videoLink, setVideoLink] = useState("");
+  const [faultLinesPdf, setFaultLinesPdf] = useState("");
 
   // Upload states
   const [uploadingPresentation, setUploadingPresentation] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [uploadingFaultLinesPdf, setUploadingFaultLinesPdf] = useState(false);
 
   // Event team size requirements
   const [minTeamSize, setMinTeamSize] = useState(2);
@@ -96,13 +108,23 @@ export default function EventTeamManager({
   const isInvestorSummit =
     eventName.toLowerCase().includes("investor's") &&
     eventName.toLowerCase().includes("summit");
+  const isFaultLines = eventName.toLowerCase().includes("fault lines");
 
   const supabase = createClient();
   const { toast } = useToast();
   const router = useRouter();
+  const { width, height } = useWindowSize();
 
   useEffect(() => {
     fetchTeamData();
+
+    // Set up polling every 5 seconds for team updates
+    const pollInterval = setInterval(() => {
+      fetchTeamData();
+    }, 5000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(pollInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
 
@@ -390,6 +412,7 @@ export default function EventTeamManager({
   const approveMember = async (userId: string) => {
     if (!team) return;
 
+    setApprovingMemberId(userId);
     try {
       const response = await fetch("/api/team/approve", {
         method: "POST",
@@ -419,12 +442,15 @@ export default function EventTeamManager({
           error instanceof Error ? error.message : "Failed to approve member.",
         variant: "destructive",
       });
+    } finally {
+      setApprovingMemberId(null);
     }
   };
 
   const rejectMember = async (userId: string) => {
     if (!team) return;
 
+    setRejectingMemberId(userId);
     try {
       const response = await fetch("/api/team/reject", {
         method: "POST",
@@ -454,19 +480,29 @@ export default function EventTeamManager({
           error instanceof Error ? error.message : "Failed to reject member.",
         variant: "destructive",
       });
+    } finally {
+      setRejectingMemberId(null);
     }
   };
 
   const handleFileUpload = async (
     file: File,
-    type: "presentation" | "photos",
+    type: "presentation" | "photos" | "faultlines",
   ) => {
     if (!team) return;
 
     const setUploading =
-      type === "presentation" ? setUploadingPresentation : setUploadingPhotos;
+      type === "presentation"
+        ? setUploadingPresentation
+        : type === "photos"
+          ? setUploadingPhotos
+          : setUploadingFaultLinesPdf;
     const setUrl =
-      type === "presentation" ? setPresentationUrl : setProductPhotosUrl;
+      type === "presentation"
+        ? setPresentationUrl
+        : type === "photos"
+          ? setProductPhotosUrl
+          : setFaultLinesPdf;
 
     setUploading(true);
     try {
@@ -481,7 +517,7 @@ export default function EventTeamManager({
 
       toast({
         title: "Upload Successful",
-        description: `${type === "presentation" ? "Presentation" : "Product photo"} uploaded successfully.`,
+        description: `${type === "presentation" ? "Presentation" : type === "photos" ? "Product photo" : "Fault Lines PDF"} uploaded successfully.`,
       });
     } catch (error) {
       console.error(`Error uploading ${type}:`, error);
@@ -510,6 +546,8 @@ export default function EventTeamManager({
           presentation_url: presentationUrl,
           product_photos_url: productPhotosUrl,
           achievements: achievements,
+          video_link: videoLink,
+          fault_lines_pdf: faultLinesPdf,
         }),
       });
 
@@ -535,6 +573,9 @@ export default function EventTeamManager({
           : `Team "${team.name}" has been registered for ${eventName}.`,
       });
 
+      // Show confetti on successful registration
+      setShowConfetti(true);
+
       // If there's a WhatsApp link, show it in a dialog or redirect with the link
       if (whatsappLink) {
         // Store the link temporarily to show after redirect
@@ -542,7 +583,11 @@ export default function EventTeamManager({
         sessionStorage.setItem("event_name", eventName);
       }
 
-      router.push("/protected");
+      // Delay redirect to allow confetti to show
+      setTimeout(() => {
+        setShowConfetti(false);
+        router.push("/protected");
+      }, 5000);
     } catch (error) {
       console.error("Error registering:", error);
       toast({
@@ -803,17 +848,39 @@ export default function EventTeamManager({
                           <Button
                             size="sm"
                             onClick={() => approveMember(member.user_id)}
-                            className="bg-green-600 cursor-pointer hover:bg-green-700 text-white h-8 text-xs"
+                            disabled={
+                              approvingMemberId === member.user_id ||
+                              rejectingMemberId === member.user_id
+                            }
+                            className="bg-green-600 cursor-pointer hover:bg-green-700 text-white h-8 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            Approve
+                            {approvingMemberId === member.user_id ? (
+                              <>
+                                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1" />
+                                Approving...
+                              </>
+                            ) : (
+                              "Approve"
+                            )}
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => rejectMember(member.user_id)}
-                            className="border-white/20 cursor-pointer text-white hover:bg-white/5 h-8 text-xs"
+                            disabled={
+                              approvingMemberId === member.user_id ||
+                              rejectingMemberId === member.user_id
+                            }
+                            className="border-white/20 cursor-pointer text-white hover:bg-white/5 h-8 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            Reject
+                            {rejectingMemberId === member.user_id ? (
+                              <>
+                                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1" />
+                                Rejecting...
+                              </>
+                            ) : (
+                              "Reject"
+                            )}
                           </Button>
                         </div>
                       </div>
@@ -845,7 +912,7 @@ export default function EventTeamManager({
                     </div>
                     <Button
                       onClick={() => {
-                        if (isBPlan || isInvestorSummit) {
+                        if (isBPlan || isInvestorSummit || isFaultLines) {
                           setShowRegistrationConfirmDialog(true);
                         } else {
                           registerForEvent();
@@ -899,46 +966,48 @@ export default function EventTeamManager({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-white">
-                Presentation/Pitch Deck (PDF or Link){" "}
-                <span className="text-red-500">*</span>
-              </Label>
-              <div className="space-y-3">
-                <Input
-                  value={presentationUrl}
-                  onChange={(e) => setPresentationUrl(e.target.value)}
-                  placeholder="Paste link or upload PDF"
-                  className="bg-white/5 border-white/10 text-white"
-                />
-                <div className="flex items-center gap-2">
+            {!isFaultLines && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">
+                  Presentation/Pitch Deck (PDF or Link){" "}
+                  <span className="text-red-500">*</span>
+                </Label>
+                <div className="space-y-3">
                   <Input
-                    type="file"
-                    accept=".pdf,.ppt,.pptx"
-                    className="hidden"
-                    id="presentation-upload"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleFileUpload(file, "presentation");
-                    }}
+                    value={presentationUrl}
+                    onChange={(e) => setPresentationUrl(e.target.value)}
+                    placeholder="Paste link or upload PDF"
+                    className="bg-white/5 border-white/10 text-white"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      document.getElementById("presentation-upload")?.click()
-                    }
-                    className="border-white/10 w-full"
-                    disabled={uploadingPresentation}
-                  >
-                    {uploadingPresentation
-                      ? "Uploading..."
-                      : "Upload from Device"}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="file"
+                      accept=".pdf,.ppt,.pptx"
+                      className="hidden"
+                      id="presentation-upload"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file, "presentation");
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        document.getElementById("presentation-upload")?.click()
+                      }
+                      className="border-white/10 w-full"
+                      disabled={uploadingPresentation}
+                    >
+                      {uploadingPresentation
+                        ? "Uploading..."
+                        : "Upload from Device"}
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {isInvestorSummit && (
               <>
@@ -996,6 +1065,74 @@ export default function EventTeamManager({
               </>
             )}
 
+            {isInvestorSummit && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">
+                  Video Pitch Link (Drive/OneDrive){" "}
+                  <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  value={videoLink}
+                  onChange={(e) => setVideoLink(e.target.value)}
+                  placeholder="Paste Google Drive or OneDrive link"
+                  className="bg-white/5 border-white/10 text-white"
+                />
+                <p className="text-xs text-gray-400">
+                  Share link to your video pitch (ensure link permissions allow
+                  viewing)
+                </p>
+              </div>
+            )}
+
+            {isFaultLines && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">
+                  Fault Lines PDF Submission{" "}
+                  <span className="text-red-500">*</span>
+                </Label>
+                <div className="space-y-3">
+                  <Input
+                    value={faultLinesPdf}
+                    onChange={(e) => setFaultLinesPdf(e.target.value)}
+                    placeholder="Paste PDF link or upload file"
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="file"
+                      accept=".pdf"
+                      className="hidden"
+                      id="faultlines-pdf-upload"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file, "faultlines");
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        document
+                          .getElementById("faultlines-pdf-upload")
+                          ?.click()
+                      }
+                      className="border-white/10 w-full"
+                      disabled={uploadingFaultLinesPdf}
+                    >
+                      {uploadingFaultLinesPdf
+                        ? "Uploading..."
+                        : "Upload PDF from Device"}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    Upload your Fault Lines submission PDF or paste a shareable
+                    link
+                  </p>
+                </div>
+              </div>
+            )}
+
             <Button
               onClick={() => {
                 setShowRegistrationConfirmDialog(false);
@@ -1005,8 +1142,10 @@ export default function EventTeamManager({
                 registering ||
                 uploadingPresentation ||
                 uploadingPhotos ||
-                !presentationUrl ||
-                (isInvestorSummit && !productPhotosUrl)
+                uploadingFaultLinesPdf ||
+                (!isFaultLines && !presentationUrl) ||
+                (isInvestorSummit && (!productPhotosUrl || !videoLink)) ||
+                (isFaultLines && !faultLinesPdf)
               }
               className="w-full bg-[#8F00AF] hover:bg-[#8F00AF]/90"
             >
@@ -1108,6 +1247,19 @@ export default function EventTeamManager({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Confetti Effect */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          <Confetti
+            width={width || window.innerWidth}
+            height={height || window.innerHeight}
+            recycle={false}
+            numberOfPieces={500}
+            gravity={0.3}
+          />
+        </div>
+      )}
     </div>
   );
 }

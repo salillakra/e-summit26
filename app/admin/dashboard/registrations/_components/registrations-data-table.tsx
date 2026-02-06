@@ -27,14 +27,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type Registration = {
   id: string;
   registered_at: string;
-  team_id?: string;
+  team_id: string;
+  presentation_url?: string | null;
+  product_photos_url?: string | null;
+  achievements?: string | null;
+  video_link?: string | null;
+  fault_lines_pdf?: string | null;
   events: {
     id: string;
     name: string;
+    slug: string;
     category: string;
   };
   teams: {
@@ -127,32 +141,139 @@ const columns: ColumnDef<Registration>[] = [
     },
   },
   {
+    id: "submission_files",
+    header: "Submission Files",
+    cell: ({ row }) => {
+      const reg = row.original;
+      const eventSlug = reg.events.slug;
+      const isBPlan = eventSlug === "b-plan";
+      const isInvestorSummit = eventSlug === "investors-summit";
+      const isFaultLines = eventSlug === "fault-lines";
+
+      const files = [];
+      if (isBPlan && reg.presentation_url)
+        files.push({
+          icon: "📄",
+          label: "Presentation",
+          url: reg.presentation_url,
+        });
+      if (isInvestorSummit) {
+        if (reg.presentation_url)
+          files.push({
+            icon: "📄",
+            label: "Presentation",
+            url: reg.presentation_url,
+          });
+        if (reg.product_photos_url)
+          files.push({
+            icon: "📷",
+            label: "Photos",
+            url: reg.product_photos_url,
+          });
+        if (reg.video_link)
+          files.push({ icon: "🎥", label: "Video", url: reg.video_link });
+      }
+      if (isFaultLines && reg.fault_lines_pdf)
+        files.push({ icon: "📄", label: "PDF", url: reg.fault_lines_pdf });
+
+      if (!isBPlan && !isInvestorSummit && !isFaultLines) {
+        return <span className="text-xs text-muted-foreground">N/A</span>;
+      }
+
+      if (files.length === 0 && !reg.achievements) {
+        return (
+          <span className="text-xs text-muted-foreground italic">
+            No files submitted
+          </span>
+        );
+      }
+
+      return (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="h-7">
+              {files.length > 0 && (
+                <span className="text-xs">
+                  {files.map((f) => f.icon).join(" ")} ({files.length})
+                </span>
+              )}
+              {isInvestorSummit && reg.achievements && files.length === 0 && (
+                <span className="text-xs">View Details</span>
+              )}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Submission Files</DialogTitle>
+              <DialogDescription>
+                Team: {reg.teams.name} • Event: {reg.events.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              {files.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Uploaded Files:</h4>
+                  <div className="space-y-2">
+                    {files.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 border rounded-lg bg-muted/30"
+                      >
+                        <span className="text-sm flex items-center gap-2">
+                          {file.icon} {file.label}
+                        </span>
+                        <a
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button size="sm" variant="secondary">
+                            Open Link
+                          </Button>
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {isInvestorSummit && reg.achievements && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Achievements:</h4>
+                  <div className="p-3 border rounded-lg bg-muted/30">
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                      {reg.achievements}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
       const registration = row.original;
-      console.log('Registration data:', registration);
-      
-      // Check if the team ID is available in the expected structure
-      const teamId = registration.team_id || (registration.teams && registration.teams.id);
-      
-      if (!teamId) {
-        console.error('No team ID found in registration:', registration);
-        return (
-          <Button variant="outline" size="sm" disabled>
-            <Eye className="mr-2 h-4 w-4" />
-            No Team
-          </Button>
-        );
-      }
-      
+      const teamId = registration.team_id;
+      const eventId = registration.events.id;
+
       return (
-        <Link href={`/admin/dashboard/registrations/team/${teamId}`}>
-          <Button className="cursor-pointer" variant="outline" size="sm">
-            <Eye className="mr-2 h-4 w-4" />
-            View Team
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href={`/admin/dashboard/registrations/team/${teamId}`}>
+            <Button className="cursor-pointer" variant="outline" size="sm">
+              <Eye className="mr-2 h-4 w-4" />
+              View Team
+            </Button>
+          </Link>
+          <Link href={`/admin/dashboard/events/${eventId}`}>
+            <Button className="cursor-pointer" variant="secondary" size="sm">
+              View Event
+            </Button>
+          </Link>
+        </div>
       );
     },
   },
@@ -163,7 +284,7 @@ export function RegistrationsDataTable({
 }: RegistrationsDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -211,7 +332,7 @@ export function RegistrationsDataTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -230,7 +351,7 @@ export function RegistrationsDataTable({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

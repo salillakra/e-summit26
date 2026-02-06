@@ -133,9 +133,16 @@ export async function getAllRegistrations() {
       `
       id,
       registered_at,
+      team_id,
+      presentation_url,
+      product_photos_url,
+      achievements,
+      video_link,
+      fault_lines_pdf,
       events!inner (
         id,
         name,
+        slug,
         category
       ),
       teams!inner (
@@ -156,6 +163,12 @@ export async function getAllRegistrations() {
   interface RegistrationData {
     id: string;
     registered_at: string;
+    team_id: string;
+    presentation_url?: string | null;
+    product_photos_url?: string | null;
+    achievements?: string | null;
+    video_link?: string | null;
+    fault_lines_pdf?: string | null;
     events: unknown;
     teams: unknown;
   }
@@ -163,6 +176,12 @@ export async function getAllRegistrations() {
   return (data || []).map((reg: RegistrationData) => ({
     id: reg.id,
     registered_at: reg.registered_at,
+    team_id: reg.team_id,
+    presentation_url: reg.presentation_url,
+    product_photos_url: reg.product_photos_url,
+    achievements: reg.achievements,
+    video_link: reg.video_link,
+    fault_lines_pdf: reg.fault_lines_pdf,
     events: Array.isArray(reg.events) ? reg.events[0] : reg.events,
     teams: Array.isArray(reg.teams) ? reg.teams[0] : reg.teams,
   }));

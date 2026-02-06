@@ -34,8 +34,15 @@ interface TeamMember {
 
 interface EventRegistration {
   id: string;
+  presentation_url?: string | null;
+  product_photos_url?: string | null;
+  achievements?: string | null;
+  video_link?: string | null;
+  fault_lines_pdf?: string | null;
   events: {
+    id: string;
     name: string;
+    slug: string;
     category: string;
     description: string;
   };
@@ -115,7 +122,9 @@ export default async function TeamDetailsPage({
 
   const { data: registrations } = (await supabaseAdmin
     .from("event_registrations")
-    .select("id, events(name, category, description)")
+    .select(
+      "id, presentation_url, product_photos_url, achievements, video_link, fault_lines_pdf, events(id, name, slug, category, description)",
+    )
     .eq("team_id", teamId)) as { data: EventRegistration[] | null };
 
   return (
@@ -248,23 +257,155 @@ export default async function TeamDetailsPage({
             <CardTitle>Registered Events ({registrations.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {registrations.map((reg) => (
-                <div
-                  key={reg.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
-                  <div>
-                    <h3 className="font-medium">{reg.events.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {reg.events.description}
-                    </p>
+            <div className="space-y-4">
+              {registrations.map((reg) => {
+                const eventSlug = reg.events.slug;
+                const isBPlan = eventSlug === "b-plan";
+                const isInvestorSummit = eventSlug === "investors-summit";
+                const isFaultLines = eventSlug === "fault-lines";
+
+                return (
+                  <div key={reg.id} className="p-4 border rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">{reg.events.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {reg.events.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="capitalize">
+                          {reg.events.category}
+                        </Badge>
+                        <Link href={`/admin/dashboard/events/${reg.events.id}`}>
+                          <Button variant="secondary" size="sm">
+                            View Event
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Submission Files */}
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <h4 className="text-sm font-medium mb-2">
+                        Submission Files:
+                      </h4>
+                      <div className="space-y-2">
+                        {/* B Plan - PDF upload */}
+                        {isBPlan && (
+                          <>
+                            {reg.presentation_url ? (
+                              <div>
+                                <a
+                                  href={reg.presentation_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-blue-500 hover:underline flex items-center gap-2"
+                                >
+                                  📄 Presentation PDF
+                                </a>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground italic">
+                                No presentation submitted
+                              </p>
+                            )}
+                          </>
+                        )}
+
+                        {/* Investor Summit - PDF, Photos, Achievements, Video */}
+                        {isInvestorSummit && (
+                          <>
+                            {reg.presentation_url && (
+                              <div>
+                                <a
+                                  href={reg.presentation_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-blue-500 hover:underline flex items-center gap-2"
+                                >
+                                  📄 Presentation PDF
+                                </a>
+                              </div>
+                            )}
+                            {reg.product_photos_url && (
+                              <div>
+                                <a
+                                  href={reg.product_photos_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-blue-500 hover:underline flex items-center gap-2"
+                                >
+                                  📷 Product Photos
+                                </a>
+                              </div>
+                            )}
+                            {reg.video_link && (
+                              <div>
+                                <a
+                                  href={reg.video_link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-blue-500 hover:underline flex items-center gap-2"
+                                >
+                                  🎥 Video Link
+                                </a>
+                              </div>
+                            )}
+                            {reg.achievements && (
+                              <div className="text-sm">
+                                <span className="font-medium">
+                                  Achievements:
+                                </span>
+                                <p className="mt-1 text-muted-foreground">
+                                  {reg.achievements}
+                                </p>
+                              </div>
+                            )}
+                            {!reg.presentation_url &&
+                              !reg.product_photos_url &&
+                              !reg.video_link &&
+                              !reg.achievements && (
+                                <p className="text-sm text-muted-foreground italic">
+                                  No submissions yet
+                                </p>
+                              )}
+                          </>
+                        )}
+
+                        {/* Fault Lines - PDF upload */}
+                        {isFaultLines && (
+                          <>
+                            {reg.fault_lines_pdf ? (
+                              <div>
+                                <a
+                                  href={reg.fault_lines_pdf}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-blue-500 hover:underline flex items-center gap-2"
+                                >
+                                  📄 Fault Lines PDF
+                                </a>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground italic">
+                                No PDF submitted
+                              </p>
+                            )}
+                          </>
+                        )}
+
+                        {/* Other events */}
+                        {!isBPlan && !isInvestorSummit && !isFaultLines && (
+                          <p className="text-sm text-muted-foreground italic">
+                            No specific submissions required
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <Badge variant="outline" className="capitalize">
-                    {reg.events.category}
-                  </Badge>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>

@@ -33,6 +33,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import {
@@ -50,6 +64,11 @@ import {
 type TeamRegistration = {
   id: string;
   registered_at: string;
+  presentation_url?: string | null;
+  product_photos_url?: string | null;
+  achievements?: string | null;
+  video_link?: string | null;
+  fault_lines_pdf?: string | null;
   teams: {
     id: string;
     name: string;
@@ -77,12 +96,16 @@ interface TeamResultsTableMeta {
 
 interface TeamResultsTableProps {
   eventId: string;
+  eventName: string;
+  eventSlug: string;
   registrations: TeamRegistration[];
   maxScore: number;
 }
 
 export function TeamResultsTable({
   eventId,
+  eventName,
+  eventSlug,
   registrations,
   maxScore,
 }: TeamResultsTableProps) {
@@ -217,6 +240,121 @@ export function TeamResultsTable({
         cell: ({ row }) => {
           const date = new Date(row.getValue("registered_at"));
           return <div>{date.toLocaleDateString()}</div>;
+        },
+      },
+      {
+        id: "submission_files",
+        header: "Submission Files",
+        cell: ({ row }) => {
+          const reg = row.original;
+          const isBPlan = eventSlug === "b-plan";
+          const isInvestorSummit = eventSlug === "investors-summit";
+          const isFaultLines = eventSlug === "fault-lines";
+
+          const files = [];
+          if (isBPlan && reg.presentation_url)
+            files.push({
+              icon: "📄",
+              label: "Presentation",
+              url: reg.presentation_url,
+            });
+          if (isInvestorSummit) {
+            if (reg.presentation_url)
+              files.push({
+                icon: "📄",
+                label: "Presentation",
+                url: reg.presentation_url,
+              });
+            if (reg.product_photos_url)
+              files.push({
+                icon: "📷",
+                label: "Photos",
+                url: reg.product_photos_url,
+              });
+            if (reg.video_link)
+              files.push({ icon: "🎥", label: "Video", url: reg.video_link });
+          }
+          if (isFaultLines && reg.fault_lines_pdf)
+            files.push({ icon: "📄", label: "PDF", url: reg.fault_lines_pdf });
+
+          if (!isBPlan && !isInvestorSummit && !isFaultLines) {
+            return <span className="text-xs text-muted-foreground">N/A</span>;
+          }
+
+          if (files.length === 0 && !reg.achievements) {
+            return (
+              <span className="text-xs text-muted-foreground italic">
+                No files
+              </span>
+            );
+          }
+
+          return (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7">
+                  {files.length > 0 && (
+                    <span className="text-xs">
+                      {files.map((f) => f.icon).join(" ")} ({files.length})
+                    </span>
+                  )}
+                  {isInvestorSummit &&
+                    reg.achievements &&
+                    files.length === 0 && (
+                      <span className="text-xs">View Details</span>
+                    )}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Submission Files</DialogTitle>
+                  <DialogDescription>Team: {reg.teams.name}</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  {files.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-3">
+                        Uploaded Files:
+                      </h4>
+                      <div className="space-y-2">
+                        {files.map((file, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-3 border rounded-lg bg-muted/30"
+                          >
+                            <span className="text-sm flex items-center gap-2">
+                              {file.icon} {file.label}
+                            </span>
+                            <a
+                              href={file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button size="sm" variant="secondary">
+                                Open Link
+                              </Button>
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {isInvestorSummit && reg.achievements && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">
+                        Achievements:
+                      </h4>
+                      <div className="p-3 border rounded-lg bg-muted/30">
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {reg.achievements}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+          );
         },
       },
       {

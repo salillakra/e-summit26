@@ -16,7 +16,7 @@ export async function  POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { event_id, team_id, presentation_url, product_photos_url, achievements } = body;
+    const { event_id, team_id, presentation_url, product_photos_url, achievements, video_link, fault_lines_pdf } = body;
 
     if (!event_id || !team_id) {
       return NextResponse.json(
@@ -109,6 +109,8 @@ export async function  POST(req: NextRequest) {
         presentation_url,
         product_photos_url,
         achievements,
+        video_link,
+        fault_lines_pdf,
       })
       .select()
       .maybeSingle();

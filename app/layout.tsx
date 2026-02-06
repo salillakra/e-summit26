@@ -5,6 +5,7 @@ import "./globals.css";
 import { getSiteUrl } from "@/lib/site";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import OnboardingBanner from "@/components/OnboardingBanner";
 
 const siteUrl = getSiteUrl();
 
@@ -109,6 +110,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <OnboardingBanner />
           <Suspense>{children}</Suspense>
           <Toaster position="top-center" />
         </ThemeProvider>

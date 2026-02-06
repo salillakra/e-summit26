@@ -80,6 +80,8 @@ export default async function EventDetailsPage({
         <h2 className="text-2xl font-bold mb-4">Registered Teams</h2>
         <TeamResultsTable
           eventId={eventId}
+          eventName={event.name}
+          eventSlug={event.slug}
           registrations={registrations}
           maxScore={event.max_score}
         />

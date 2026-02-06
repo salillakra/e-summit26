@@ -3,6 +3,11 @@ import { createServiceClient } from "@/lib/supabase/server";
 type TeamRegistration = {
   id: string;
   registered_at: string;
+  presentation_url?: string | null;
+  product_photos_url?: string | null;
+  achievements?: string | null;
+  video_link?: string | null;
+  fault_lines_pdf?: string | null;
   teams: {
     id: string;
     name: string;
@@ -202,6 +207,11 @@ export async function getEventDetails(eventId: string) {
       id,
       registered_at,
       team_id,
+      presentation_url,
+      product_photos_url,
+      achievements,
+      video_link,
+      fault_lines_pdf,
       teams!inner (
         id,
         name,
@@ -227,11 +237,16 @@ export async function getEventDetails(eventId: string) {
 
     const resultsMap = new Map(results?.map((r) => [r.team_id, r]) || []);
 
-    registrationsWithResults = registrations.map((reg: Registration) => {
+    registrationsWithResults = registrations.map((reg: any) => {
       const result = resultsMap.get(reg.team_id);
       return {
         id: reg.id,
         registered_at: reg.registered_at,
+        presentation_url: reg.presentation_url,
+        product_photos_url: reg.product_photos_url,
+        achievements: reg.achievements,
+        video_link: reg.video_link,
+        fault_lines_pdf: reg.fault_lines_pdf,
         teams: Array.isArray(reg.teams) ? reg.teams[0] : reg.teams,
         event_results: result ? [result] : [],
       };

@@ -10,10 +10,8 @@ export async function POST(req: Request) {
   const codeRaw = String(body?.code ?? "");
   const code = codeRaw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
 
-  console.log("[JOIN] User:", user.id, "Code:", code, "Raw:", codeRaw);
 
   if (code.length < 4) {
-    console.log("[JOIN] Code too short:", code.length);
     return NextResponse.json({ error: "CODE_INVALID" }, { status: 400 });
   }
 
@@ -27,7 +25,6 @@ export async function POST(req: Request) {
   if (teamError || !team) return NextResponse.json({ error: "TEAM_NOT_FOUND" }, { status: 404 });
   if (team.team_leader_id === user.id) return NextResponse.json({ error: "CANNOT_JOIN_OWN_TEAM" }, { status: 400 });
 
-  console.log("[JOIN] Team found:", team.id, "Event:", team.event_id);
 
   // Check if user already has a team for THIS SPECIFIC event
   const { data: existingMemberships } = await supabase
@@ -36,7 +33,6 @@ export async function POST(req: Request) {
     .eq("user_id", user.id)
     .in("status", ["pending", "accepted"]);
 
-  console.log("[JOIN] Existing memberships:", existingMemberships);
 
   if (existingMemberships && existingMemberships.length > 0) {
     // Check if user already has a team for this specific event
@@ -63,7 +59,6 @@ export async function POST(req: Request) {
 
   if ((count ?? 0) >= 5) return NextResponse.json({ error: "TEAM_FULL" }, { status: 409 });
 
-  console.log("[JOIN] Team size:", count, "- proceeding with join");
 
   // Upsert the joining record (allows re-applying after cancellation/rejection)
   const { error: insErr } = await supabase
@@ -74,11 +69,9 @@ export async function POST(req: Request) {
     );
 
   if (insErr) {
-    console.error("[JOIN] Insert error:", insErr);
     return NextResponse.json({ error: "JOIN_REQUEST_FAILED", details: insErr.message }, { status: 400 });
   }
 
-  console.log("[JOIN] Success - User", user.id, "joined team", team.id);
 
   return NextResponse.json({ ok: true, team });
 }
