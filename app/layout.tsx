@@ -110,7 +110,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <OnboardingBanner />
+          <Suspense fallback={null}>
+            <OnboardingBanner />
+          </Suspense>
           <Suspense>{children}</Suspense>
           <Toaster position="top-center" />
         </ThemeProvider>
