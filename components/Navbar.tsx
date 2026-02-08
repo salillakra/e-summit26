@@ -21,6 +21,7 @@ const LINKS = [
   { label: "Home", href: "/", icon: Home },
   { label: "Speakers", href: "/speakers", icon: Users },
   { label: "Events", href: "/events", icon: Calendar },
+  { label: "Venue", href: "/venue", icon: MapPin },
   { label: "Contact", href: "/contact", icon: Mail },
 ];
 
