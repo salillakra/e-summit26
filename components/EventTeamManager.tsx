@@ -24,6 +24,8 @@ import {
   UserPlus,
   Trophy,
   Clock,
+  Trash2,
+  UserMinus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { uploadFile } from "@/lib/upload";
@@ -88,6 +90,14 @@ export default function EventTeamManager({
   );
   const [showConfetti, setShowConfetti] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showRemoveMemberDialog, setShowRemoveMemberDialog] = useState(false);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   // New fields for B Plan and Investor Summit
   const [presentationUrl, setPresentationUrl] = useState("");
@@ -374,6 +384,87 @@ export default function EventTeamManager({
       );
     } finally {
       setJoining(false);
+    }
+  };
+
+  const deleteTeam = async () => {
+    if (!team || !user) return;
+
+    setDeleting(true);
+    try {
+      const response = await fetch("/api/team/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          team_id: team.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to delete team");
+      }
+
+      toast.success("Team Deleted", {
+        description: `Team "${team.name}" has been deleted successfully.`,
+      });
+
+      setShowDeleteDialog(false);
+      setTeam(null);
+      await fetchTeamData();
+    } catch (error) {
+      console.error("Error deleting team:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete team.",
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const removeMember = async () => {
+    if (!team || !user || !memberToRemove) return;
+
+    setRemovingMemberId(memberToRemove.id);
+    try {
+      const response = await fetch("/api/team/remove-member", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          team_id: team.id,
+          user_id: memberToRemove.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to remove member");
+      }
+
+      toast.success("Member Removed", {
+        description: `${memberToRemove.name} has been removed from the team.`,
+      });
+
+      setShowRemoveMemberDialog(false);
+      setMemberToRemove(null);
+
+      // Immediately update the team state to remove the member
+      if (team) {
+        setTeam({
+          ...team,
+          members: team.members.filter((m) => m.user_id !== memberToRemove.id),
+        });
+      }
+
+      // Also refresh from the server
+      await fetchTeamData();
+    } catch (error) {
+      console.error("Error removing member:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to remove member.",
+      );
+    } finally {
+      setRemovingMemberId(null);
     }
   };
 
@@ -698,18 +789,28 @@ export default function EventTeamManager({
                     {team.slug}
                   </Badge>
                   {isLeader && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={copyTeamCode}
-                      className="h-7 px-2 hover:bg-white/10"
-                    >
-                      {copied ? (
-                        <Check className="h-3.5 w-3.5 text-[#8F00AF]" />
-                      ) : (
-                        <Copy className="h-3.5 w-3.5 text-gray-400" />
-                      )}
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={copyTeamCode}
+                        className="h-7 px-2 hover:bg-white/10"
+                      >
+                        {copied ? (
+                          <Check className="h-3.5 w-3.5 text-[#8F00AF]" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5 text-gray-400" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowDeleteDialog(true)}
+                        className="h-7 px-2 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -760,11 +861,28 @@ export default function EventTeamManager({
                           </p>
                         </div>
                       </div>
-                      {member.role === "leader" && (
+                      {member.role === "leader" ? (
                         <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">
                           <Crown className="h-3 w-3 mr-1" />
                           Leader
                         </Badge>
+                      ) : (
+                        isLeader && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setMemberToRemove({
+                                id: member.user_id,
+                                name: displayName || "Unknown User",
+                              });
+                              setShowRemoveMemberDialog(true);
+                            }}
+                            className="h-7 px-2 hover:bg-red-500/10"
+                          >
+                            <UserMinus className="h-3.5 w-3.5 text-red-400" />
+                          </Button>
+                        )
                       )}
                     </div>
                   );
@@ -1205,6 +1323,120 @@ export default function EventTeamManager({
                 className="flex-1 bg-[#8F00AF] hover:bg-[#8F00AF]/90 text-white"
               >
                 Login to Continue
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Team Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="bg-black border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg text-red-400">
+              Delete Team
+            </DialogTitle>
+            <DialogDescription className="text-gray-400 text-sm">
+              Are you sure you want to delete this team? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <p className="text-sm text-red-300">
+                <strong>Warning:</strong> Deleting team &quot;{team?.name}&quot;
+                will:
+              </p>
+              <ul className="mt-2 text-sm text-red-300/80 space-y-1 list-disc list-inside">
+                <li>Remove all team members</li>
+                <li>Delete all team data</li>
+                <li>Cancel any event registrations</li>
+              </ul>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(false)}
+                disabled={deleting}
+                className="flex-1 border-white/20 text-white hover:bg-white/5"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={deleteTeam}
+                disabled={deleting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Team
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove Member Confirmation Dialog */}
+      <Dialog
+        open={showRemoveMemberDialog}
+        onOpenChange={setShowRemoveMemberDialog}
+      >
+        <DialogContent className="bg-black border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg text-orange-400">
+              Remove Team Member
+            </DialogTitle>
+            <DialogDescription className="text-gray-400 text-sm">
+              Are you sure you want to remove this member from your team?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+              <p className="text-sm text-orange-300">
+                <strong>{memberToRemove?.name}</strong> will be removed from
+                team &quot;{team?.name}&quot;.
+              </p>
+              <p className="mt-2 text-sm text-orange-300/80">
+                They will no longer be part of your team and will need to
+                request to join again if they want to rejoin.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowRemoveMemberDialog(false);
+                  setMemberToRemove(null);
+                }}
+                disabled={removingMemberId !== null}
+                className="flex-1 border-white/20 text-white hover:bg-white/5"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={removeMember}
+                disabled={removingMemberId !== null}
+                className="flex-1 bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
+              >
+                {removingMemberId !== null ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                    Removing...
+                  </>
+                ) : (
+                  <>
+                    <UserMinus className="h-4 w-4 mr-2" />
+                    Remove Member
+                  </>
+                )}
               </Button>
             </div>
           </div>
