@@ -298,28 +298,20 @@ export default function EventsList() {
 
   const handleFileUpload = async (
     file: File,
-    type: "presentation" | "photos" | "faultlines",
+    type: "presentation" | "photos",
     teamId: string,
   ) => {
     const setUploading =
-      type === "presentation"
-        ? setUploadingPresentation
-        : type === "photos"
-          ? setUploadingPhotos
-          : setUploadingFaultLinesPdf;
+      type === "presentation" ? setUploadingPresentation : setUploadingPhotos;
     const setUrl =
-      type === "presentation"
-        ? setPresentationUrl
-        : type === "photos"
-          ? setProductPhotosUrl
-          : setFaultLinesPdf;
+      type === "presentation" ? setPresentationUrl : setProductPhotosUrl;
 
     setUploading(true);
     try {
       const url = await uploadFile(file, `teams/${teamId}/${type}`);
       setUrl(url);
       toast.success("Upload Successful", {
-        description: `${type === "presentation" ? "Presentation" : type === "photos" ? "Product photos" : "Fault Lines PDF"} uploaded successfully.`,
+        description: `${type === "presentation" ? "Presentation" : "Product photos"} uploaded successfully.`,
       });
     } catch (error) {
       console.error(`Error uploading ${type}:`, error);
@@ -345,7 +337,6 @@ export default function EventsList() {
         product_photos_url: productPhotosUrl,
         achievements: achievements,
         video_link: videoLink,
-        fault_lines_pdf: faultLinesPdf,
       });
 
       if (error) {
@@ -387,7 +378,6 @@ export default function EventsList() {
       setProductPhotosUrl("");
       setAchievements("");
       setVideoLink("");
-      setFaultLinesPdf("");
     }
   };
 
@@ -977,63 +967,6 @@ export default function EventsList() {
                               </div>
                             </>
                           )}
-                          {isFaultLines && (
-                            <div className="space-y-2">
-                              <Label className="text-xs text-gray-400">
-                                Fault Lines PDF Submission{" "}
-                                <span className="text-red-500">*</span>
-                              </Label>
-                              <div className="space-y-3">
-                                <Input
-                                  value={faultLinesPdf}
-                                  onChange={(e) =>
-                                    setFaultLinesPdf(e.target.value)
-                                  }
-                                  placeholder="Paste PDF link or upload file"
-                                  className="bg-white/5 border-white/10 text-white text-sm"
-                                />
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    type="file"
-                                    accept=".pdf"
-                                    className="hidden"
-                                    id={`faultlines-upload-${selectedTeam?.id}`}
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file && selectedTeam)
-                                        handleFileUpload(
-                                          file,
-                                          "faultlines",
-                                          selectedTeam.id,
-                                        );
-                                    }}
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                      document
-                                        .getElementById(
-                                          `faultlines-upload-${selectedTeam?.id}`,
-                                        )
-                                        ?.click()
-                                    }
-                                    className="border-white/10 w-full text-xs"
-                                    disabled={uploadingFaultLinesPdf}
-                                  >
-                                    {uploadingFaultLinesPdf
-                                      ? "Uploading..."
-                                      : "Upload PDF from Device"}
-                                  </Button>
-                                </div>
-                                <p className="text-xs text-gray-400">
-                                  Upload your Fault Lines submission PDF or
-                                  paste a shareable link
-                                </p>
-                              </div>
-                            </div>
-                          )}
                         </div>
                       )}
                     </div>
@@ -1062,10 +995,8 @@ export default function EventsList() {
                       loadingTeamMembers ||
                       uploadingPresentation ||
                       uploadingPhotos ||
-                      uploadingFaultLinesPdf ||
                       (!isFaultLines && !presentationUrl) ||
-                      (isInvestorSummit && (!productPhotosUrl || !videoLink)) ||
-                      (isFaultLines && !faultLinesPdf)
+                      (isInvestorSummit && (!productPhotosUrl || !videoLink))
                     }
                     className="bg-gradient-to-r from-[#733080] to-[#9000b1] hover:from-[#5a2666] hover:to-[#800099] disabled:opacity-50 disabled:cursor-not-allowed text-white w-full sm:w-auto text-base font-semibold h-12 rounded-xl shadow-lg"
                   >

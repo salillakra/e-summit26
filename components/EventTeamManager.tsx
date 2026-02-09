@@ -87,18 +87,17 @@ export default function EventTeamManager({
     null,
   );
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   // New fields for B Plan and Investor Summit
   const [presentationUrl, setPresentationUrl] = useState("");
   const [productPhotosUrl, setProductPhotosUrl] = useState("");
   const [achievements, setAchievements] = useState("");
   const [videoLink, setVideoLink] = useState("");
-  const [faultLinesPdf, setFaultLinesPdf] = useState("");
 
   // Upload states
   const [uploadingPresentation, setUploadingPresentation] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
-  const [uploadingFaultLinesPdf, setUploadingFaultLinesPdf] = useState(false);
 
   // Event team size requirements
   const [minTeamSize, setMinTeamSize] = useState(2);
@@ -145,12 +144,12 @@ export default function EventTeamManager({
         data: { user: currentUser },
       } = await supabase.auth.getUser();
 
+      setUser(currentUser);
+
       if (!currentUser) {
-        router.push(`/auth/login?redirect=/events/${eventSlug}`);
+        setLoading(false);
         return;
       }
-
-      setUser(currentUser);
 
       // Check if user has a team for this specific event
       const { data: teamMemberData } = await supabase
@@ -459,22 +458,14 @@ export default function EventTeamManager({
 
   const handleFileUpload = async (
     file: File,
-    type: "presentation" | "photos" | "faultlines",
+    type: "presentation" | "photos",
   ) => {
     if (!team) return;
 
     const setUploading =
-      type === "presentation"
-        ? setUploadingPresentation
-        : type === "photos"
-          ? setUploadingPhotos
-          : setUploadingFaultLinesPdf;
+      type === "presentation" ? setUploadingPresentation : setUploadingPhotos;
     const setUrl =
-      type === "presentation"
-        ? setPresentationUrl
-        : type === "photos"
-          ? setProductPhotosUrl
-          : setFaultLinesPdf;
+      type === "presentation" ? setPresentationUrl : setProductPhotosUrl;
 
     setUploading(true);
     try {
@@ -488,7 +479,7 @@ export default function EventTeamManager({
       }
 
       toast.success("Upload Successful", {
-        description: `${type === "presentation" ? "Presentation" : type === "photos" ? "Product photo" : "Fault Lines PDF"} uploaded successfully.`,
+        description: `${type === "presentation" ? "Presentation" : "Product photo"} uploaded successfully.`,
       });
     } catch (error) {
       console.error(`Error uploading ${type}:`, error);
@@ -515,7 +506,6 @@ export default function EventTeamManager({
           product_photos_url: productPhotosUrl,
           achievements: achievements,
           video_link: videoLink,
-          fault_lines_pdf: faultLinesPdf,
         }),
       });
 
@@ -665,14 +655,26 @@ export default function EventTeamManager({
           </CardHeader>
           <CardContent className="space-y-3">
             <Button
-              onClick={() => setShowCreateDialog(true)}
+              onClick={() => {
+                if (!user) {
+                  setShowLoginDialog(true);
+                } else {
+                  setShowCreateDialog(true);
+                }
+              }}
               className="w-full bg-[#8F00AF] hover:bg-[#8F00AF]/90 text-white"
             >
               <UserPlus className="h-4 w-4 mr-2" />
               Create New Team
             </Button>
             <Button
-              onClick={() => setShowJoinDialog(true)}
+              onClick={() => {
+                if (!user) {
+                  setShowLoginDialog(true);
+                } else {
+                  setShowJoinDialog(true);
+                }
+              }}
               variant="outline"
               className="w-full border-white/20 text-white hover:bg-white/5"
             >
@@ -876,7 +878,7 @@ export default function EventTeamManager({
                     </div>
                     <Button
                       onClick={() => {
-                        if (isBPlan || isInvestorSummit || isFaultLines) {
+                        if (isBPlan || isInvestorSummit) {
                           setShowRegistrationConfirmDialog(true);
                         } else {
                           registerForEvent();
@@ -1048,55 +1050,6 @@ export default function EventTeamManager({
               </div>
             )}
 
-            {isFaultLines && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-white">
-                  Fault Lines PDF Submission{" "}
-                  <span className="text-red-500">*</span>
-                </Label>
-                <div className="space-y-3">
-                  <Input
-                    value={faultLinesPdf}
-                    onChange={(e) => setFaultLinesPdf(e.target.value)}
-                    placeholder="Paste PDF link or upload file"
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="file"
-                      accept=".pdf"
-                      className="hidden"
-                      id="faultlines-pdf-upload"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload(file, "faultlines");
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        document
-                          .getElementById("faultlines-pdf-upload")
-                          ?.click()
-                      }
-                      className="border-white/10 w-full"
-                      disabled={uploadingFaultLinesPdf}
-                    >
-                      {uploadingFaultLinesPdf
-                        ? "Uploading..."
-                        : "Upload PDF from Device"}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-400">
-                    Upload your Fault Lines submission PDF or paste a shareable
-                    link
-                  </p>
-                </div>
-              </div>
-            )}
-
             <Button
               onClick={() => {
                 setShowRegistrationConfirmDialog(false);
@@ -1106,10 +1059,8 @@ export default function EventTeamManager({
                 registering ||
                 uploadingPresentation ||
                 uploadingPhotos ||
-                uploadingFaultLinesPdf ||
                 (!isFaultLines && !presentationUrl) ||
-                (isInvestorSummit && (!productPhotosUrl || !videoLink)) ||
-                (isFaultLines && !faultLinesPdf)
+                (isInvestorSummit && (!productPhotosUrl || !videoLink))
               }
               className="w-full bg-[#8F00AF] hover:bg-[#8F00AF]/90"
             >
@@ -1224,6 +1175,41 @@ export default function EventTeamManager({
           />
         </div>
       )}
+
+      {/* Login Required Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="bg-black border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg">Login Required</DialogTitle>
+            <DialogDescription className="text-gray-400 text-sm">
+              You need to be logged in to create or join a team for {eventName}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-white/70">
+              Please log in or create an account to continue with team
+              registration.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowLoginDialog(false)}
+                className="flex-1 border-white/20 text-white hover:bg-white/5"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() =>
+                  router.push(`/auth/login?redirect=/events/${eventSlug}`)
+                }
+                className="flex-1 bg-[#8F00AF] hover:bg-[#8F00AF]/90 text-white"
+              >
+                Login to Continue
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
