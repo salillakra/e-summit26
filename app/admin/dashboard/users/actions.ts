@@ -17,6 +17,10 @@ export interface UserWithDetails {
   branch: string | null;
   team: string | null;
   gender: string | null;
+  college: string | null;
+  whatsapp_no: string | null;
+  first_name: string | null;
+  last_name: string | null;
 }
 
 export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
@@ -104,7 +108,7 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
   // Batch fetch all profiles
   const { data: profiles } = await supabaseAdmin
     .from("profiles")
-    .select("id, roll_no, phone, branch, onboarding_completed, gender")
+    .select("id, roll_no, phone, branch, onboarding_completed, gender, college, whatsapp_no, first_name, last_name")
     .in("id", userIds);
 
   // Batch fetch all team members
@@ -147,6 +151,10 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
       branch: profile?.branch || null,
       team: (teamMember?.teams as unknown as TeamType | null)?.name || null,
       gender: profile?.gender || null,
+      college: profile?.college || null,
+      whatsapp_no: profile?.whatsapp_no || null,
+      first_name: profile?.first_name || null,
+      last_name: profile?.last_name || null,
     };
   });
 

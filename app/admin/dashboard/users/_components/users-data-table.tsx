@@ -853,6 +853,60 @@ export function UsersDataTable({
                   </div>
                 )}
 
+                {selectedUser.whatsapp_no && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      <span className="text-sm font-medium">WhatsApp</span>
+                    </div>
+                    <p className="text-sm">{selectedUser.whatsapp_no}</p>
+                  </div>
+                )}
+
+                {selectedUser.college && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <GraduationCap className="h-4 w-4" />
+                      <span className="text-sm font-medium">College</span>
+                    </div>
+                    <p className="text-sm">{selectedUser.college}</p>
+                  </div>
+                )}
+
+                {selectedUser.gender && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <User className="h-4 w-4" />
+                      <span className="text-sm font-medium">Gender</span>
+                    </div>
+                    <p className="text-sm capitalize">{selectedUser.gender}</p>
+                  </div>
+                )}
+
+                {(selectedUser.first_name || selectedUser.last_name) && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <User className="h-4 w-4" />
+                      <span className="text-sm font-medium">Full Name</span>
+                    </div>
+                    <p className="text-sm">
+                      {[selectedUser.first_name, selectedUser.last_name]
+                        .filter(Boolean)
+                        .join(" ")}
+                    </p>
+                  </div>
+                )}
+
+                {selectedUser.team && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <User className="h-4 w-4" />
+                      <span className="text-sm font-medium">Team</span>
+                    </div>
+                    <p className="text-sm">{selectedUser.team}</p>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="h-4 w-4" />
