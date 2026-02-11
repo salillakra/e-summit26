@@ -25,6 +25,8 @@ import {
   Phone,
   Calendar,
   GraduationCap,
+  Users,
+  ExternalLink,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -72,9 +74,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { UserWithDetails, updateUserRole } from "../actions";
+import { UserWithDetails, updateUserRole, UserTeam } from "../actions";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
+import Link from "next/link";
 
 interface UsersDataTableProps {
   users: UserWithDetails[];
@@ -84,6 +87,7 @@ interface UsersDataTableProps {
 const createColumns = (
   onViewDetails: (user: UserWithDetails) => void,
   onChangeRole: (user: UserWithDetails) => void,
+  onViewTeams: (user: UserWithDetails) => void,
   currentUserRole?: string,
 ): ColumnDef<UserWithDetails>[] => [
   {
@@ -218,28 +222,27 @@ const createColumns = (
     },
   },
   {
-    accessorKey: "team",
-    header: ({ column }) => {
+    accessorKey: "teams",
+    header: "Teams",
+    cell: ({ row }) => {
+      const user = row.original;
+      const teams = user.teams || [];
+
+      if (teams.length === 0) {
+        return <span className="text-muted-foreground text-sm">No teams</span>;
+      }
+
       return (
         <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="outline"
+          size="sm"
+          onClick={() => onViewTeams(user)}
+          className="gap-2"
         >
-          Team
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <Users className="h-4 w-4" />
+          {teams.length} {teams.length === 1 ? "Team" : "Teams"}
         </Button>
       );
-    },
-    cell: ({ row }) => {
-      const team = row.getValue("team") as string | null;
-      return team ? (
-        <Badge variant="outline">{team}</Badge>
-      ) : (
-        <span className="text-muted-foreground text-sm">No team</span>
-      );
-    },
-    filterFn: (row, id, value) => {
-      return value === "all" || row.getValue(id) === value;
     },
   },
   {
@@ -393,6 +396,7 @@ export function UsersDataTable({
   const [selectedUser, setSelectedUser] =
     React.useState<UserWithDetails | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
+  const [isTeamsDialogOpen, setIsTeamsDialogOpen] = React.useState(false);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = React.useState(false);
   const [newRole, setNewRole] = React.useState<"admin" | "moderator" | "user">(
     "user",
@@ -402,6 +406,11 @@ export function UsersDataTable({
   const handleViewDetails = (user: UserWithDetails) => {
     setSelectedUser(user);
     setIsDetailsOpen(true);
+  };
+
+  const handleViewTeams = (user: UserWithDetails) => {
+    setSelectedUser(user);
+    setIsTeamsDialogOpen(true);
   };
 
   const handleChangeRole = (user: UserWithDetails) => {
@@ -443,7 +452,13 @@ export function UsersDataTable({
   };
 
   const columns = React.useMemo(
-    () => createColumns(handleViewDetails, handleChangeRole, currentUserRole),
+    () =>
+      createColumns(
+        handleViewDetails,
+        handleChangeRole,
+        handleViewTeams,
+        currentUserRole,
+      ),
     [currentUserRole],
   );
 
@@ -487,15 +502,6 @@ export function UsersDataTable({
   // Always show all possible roles in the filter dropdown
   const roles = ["user", "moderator", "admin"];
 
-  const teams = React.useMemo(() => {
-    const uniqueTeams = new Set(
-      users
-        .map((user) => user.team)
-        .filter((team): team is string => team !== null),
-    );
-    return Array.from(uniqueTeams);
-  }, [users]);
-
   return (
     <div className="w-full space-y-4">
       {/* Filters */}
@@ -533,31 +539,6 @@ export function UsersDataTable({
                   {role}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-
-          {/* Team Filter */}
-          <Select
-            value={
-              (table.getColumn("team")?.getFilterValue() as string) ?? "all"
-            }
-            onValueChange={(value) =>
-              table
-                .getColumn("team")
-                ?.setFilterValue(value === "all" ? "" : value)
-            }
-          >
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Team" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Teams</SelectItem>
-              {teams.map((team) => (
-                <SelectItem key={team} value={team}>
-                  {team}
-                </SelectItem>
-              ))}
-              <SelectItem value="null">No Team</SelectItem>
             </SelectContent>
           </Select>
 
@@ -897,13 +878,22 @@ export function UsersDataTable({
                   </div>
                 )}
 
-                {selectedUser.team && (
-                  <div className="space-y-2">
+                {selectedUser.teams.length > 0 && (
+                  <div className="space-y-2 md:col-span-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <User className="h-4 w-4" />
-                      <span className="text-sm font-medium">Team</span>
+                      <Users className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        Teams ({selectedUser.teams.length})
+                      </span>
                     </div>
-                    <p className="text-sm">{selectedUser.team}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedUser.teams.map((team, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">
+                          {team.team_name}
+                          {team.event_name && ` • ${team.event_name}`}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -1027,6 +1017,70 @@ export function UsersDataTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* User Teams Dialog */}
+      <Dialog open={isTeamsDialogOpen} onOpenChange={setIsTeamsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Teams & Events</DialogTitle>
+            <DialogDescription>
+              {selectedUser && `All teams for ${selectedUser.name}`}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              {selectedUser.teams.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>This user is not part of any team yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {selectedUser.teams.map((team, idx) => (
+                    <Link
+                      key={idx}
+                      href={`/admin/dashboard/registrations/team/${team.team_id}`}
+                      className="block"
+                    >
+                      <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group">
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {team.team_name}
+                            </span>
+                            <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded">
+                              @{team.team_slug}
+                            </span>
+                            {team.event_name && (
+                              <>
+                                <span>•</span>
+                                <Badge variant="secondary" className="text-xs">
+                                  {team.event_name}
+                                </Badge>
+                              </>
+                            )}
+                            {!team.event_name && (
+                              <>
+                                <span>•</span>
+                                <span className="text-xs italic">
+                                  General Team
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

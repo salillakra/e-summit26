@@ -2,6 +2,14 @@
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 
+export interface UserTeam {
+  team_id: string;
+  team_name: string;
+  team_slug: string;
+  event_id: string | null;
+  event_name: string | null;
+}
+
 export interface UserWithDetails {
   id: string;
   email: string;
@@ -15,7 +23,7 @@ export interface UserWithDetails {
   roll_no: string | null;
   phone: string | null;
   branch: string | null;
-  team: string | null;
+  teams: UserTeam[];
   gender: string | null;
   college: string | null;
   whatsapp_no: string | null;
@@ -111,30 +119,66 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
     .select("id, roll_no, phone, branch, onboarding_completed, gender, college, whatsapp_no, first_name, last_name")
     .in("id", userIds);
 
-  // Batch fetch all team members
+  // Batch fetch all team members with event info
   const { data: teamMembers } = await supabaseAdmin
     .from("team_members")
     .select(`
       user_id,
       teams (
-        name
+        id,
+        name,
+        slug,
+        event_id
       )
     `)
     .in("user_id", userIds);
 
+  // Get all unique event IDs
+  const eventIds = new Set(
+    (teamMembers || [])
+      .map(tm => (tm.teams as any)?.event_id)
+      .filter((id): id is string => id !== null && id !== undefined)
+  );
+
+  // Batch fetch event names
+  const { data: events } = await supabaseAdmin
+    .from("events")
+    .select("id, name")
+    .in("id", Array.from(eventIds));
+
+  const eventMap = new Map((events || []).map(e => [e.id, e.name]));
+
   // Create lookup maps for O(1) access
   const roleMap = new Map(userRoles?.map(ur => [ur.user_id, ur]) || []);
   const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-  const teamMap = new Map(teamMembers?.map(tm => [tm.user_id, tm]) || []);
+  
+  // Group team members by user_id
+  const userTeamsMap = new Map<string, UserTeam[]>();
+  (teamMembers || []).forEach(tm => {
+    const team = tm.teams as any;
+    if (!team) return;
+    
+    const userTeam: UserTeam = {
+      team_id: team.id,
+      team_name: team.name,
+      team_slug: team.slug,
+      event_id: team.event_id || null,
+      event_name: team.event_id ? (eventMap.get(team.event_id) || null) : null,
+    };
+    
+    if (!userTeamsMap.has(tm.user_id)) {
+      userTeamsMap.set(tm.user_id, []);
+    }
+    userTeamsMap.get(tm.user_id)!.push(userTeam);
+  });
 
-  type TeamType = { name: string };
   type RoleType = { id: string; name: string };
 
   // Map all users with their details
   const users: UserWithDetails[] = allUsers.map(authUser => {
     const userRole = roleMap.get(authUser.id);
     const profile = profileMap.get(authUser.id);
-    const teamMember = teamMap.get(authUser.id);
+    const userTeams = userTeamsMap.get(authUser.id) || [];
 
     return {
       id: authUser.id,
@@ -149,7 +193,7 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
       roll_no: profile?.roll_no || null,
       phone: profile?.phone || null,
       branch: profile?.branch || null,
-      team: (teamMember?.teams as unknown as TeamType | null)?.name || null,
+      teams: userTeams,
       gender: profile?.gender || null,
       college: profile?.college || null,
       whatsapp_no: profile?.whatsapp_no || null,

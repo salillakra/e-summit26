@@ -4,10 +4,9 @@ export function getSiteUrl(): URL {
     try {
       return new URL(raw);
     } catch {
-      // fall through
+      console.warn(`Invalid NEXT_PUBLIC_SITE_URL: ${raw}. Falling back to default localhost URL.`);
     }
   }
 
-  // Safe fallback for local/dev; set NEXT_PUBLIC_SITE_URL in production.
   return new URL("http://localhost:3000");
 }
