@@ -105,10 +105,14 @@ export async function getAdminStats() {
     });
   }
 
-  // Total registrations
-  const { count: registrationsCount } = await supabase
+  // Total registrations - count unique teams registered for events
+  const { data: teamRegistrations } = await supabase
     .from("event_registrations")
-    .select("*", { count: "exact", head: true });
+    .select("team_id");
+
+  const uniqueTeamsRegistered = new Set(
+    (teamRegistrations || []).map(r => r.team_id)
+  ).size;
 
   // Total teams
   const { count: teamsCount } = await supabase
@@ -120,9 +124,18 @@ export async function getAdminStats() {
     .from("events")
     .select("*", { count: "exact", head: true });
 
+  // Count unique registered players
+  const { data: registeredPlayers } = await supabase
+    .from("event_registrations")
+    .select("user_id");
+
+  const uniqueRegisteredPlayers = new Set(
+    (registeredPlayers || []).map(r => r.user_id)
+  ).size;
+
   return {
-    onboardedUsers: onboardedCount || 0,
-    totalRegistrations: registrationsCount || 0,
+    onboardedUsers: uniqueRegisteredPlayers || 0,
+    totalRegistrations: uniqueTeamsRegistered || 0,
     totalTeams: teamsCount || 0,
     totalEvents: eventsCount || 0,
   };

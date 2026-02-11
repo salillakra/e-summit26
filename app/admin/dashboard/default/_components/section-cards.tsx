@@ -31,7 +31,7 @@ export function SectionCards({ stats }: SectionCardsProps) {
     <div className="grid @5xl/main:grid-cols-4 @xl/main:grid-cols-2 grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs dark:*:data-[slot=card]:bg-card">
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Total Onboarded Users</CardDescription>
+          <CardDescription>Total Registered Players</CardDescription>
           <CardTitle className="font-semibold @[250px]/card:text-3xl text-2xl tabular-nums flex items-center gap-2">
             <Users className="size-6 text-primary" />
             {stats.onboardedUsers}
@@ -39,10 +39,10 @@ export function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Users who completed onboarding
+            Unique players registered for events
           </div>
           <div className="text-muted-foreground">
-            Ready to participate in events
+            Active participants across all events
           </div>
         </CardFooter>
       </Card>
@@ -56,9 +56,11 @@ export function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Team registrations across all events
+            Total team registrations
           </div>
-          <div className="text-muted-foreground">Total participation count</div>
+          <div className="text-muted-foreground">
+            Team sign-ups across all events
+          </div>
         </CardFooter>
       </Card>
       <Card className="@container/card">

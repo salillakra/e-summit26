@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Eye } from "lucide-react";
+import { ArrowUpDown, Eye, ChevronDown, X } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Registration = {
   id: string;
@@ -288,9 +301,54 @@ export function RegistrationsDataTable({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const [eventFilter, setEventFilter] = React.useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
+  const [submissionFilter, setSubmissionFilter] = React.useState<string>("all");
+
+  // Get unique events and categories for filters
+  const uniqueEvents = React.useMemo(() => {
+    const events = new Set(registrations.map((r) => r.events.name));
+    return Array.from(events).sort();
+  }, [registrations]);
+
+  const uniqueCategories = React.useMemo(() => {
+    const categories = new Set(registrations.map((r) => r.events.category));
+    return Array.from(categories).sort();
+  }, [registrations]);
+
+  // Filter data based on selected filters
+  const filteredData = React.useMemo(() => {
+    return registrations.filter((reg) => {
+      const matchesEvent =
+        eventFilter === "all" || reg.events.name === eventFilter;
+      const matchesCategory =
+        categoryFilter === "all" || reg.events.category === categoryFilter;
+
+      let matchesSubmission = true;
+      if (submissionFilter === "submitted") {
+        const hasFiles =
+          reg.presentation_url ||
+          reg.product_photos_url ||
+          reg.video_link ||
+          reg.fault_lines_pdf ||
+          reg.achievements;
+        matchesSubmission = !!hasFiles;
+      } else if (submissionFilter === "pending") {
+        const hasFiles =
+          reg.presentation_url ||
+          reg.product_photos_url ||
+          reg.video_link ||
+          reg.fault_lines_pdf ||
+          reg.achievements;
+        matchesSubmission = !hasFiles;
+      }
+
+      return matchesEvent && matchesCategory && matchesSubmission;
+    });
+  }, [registrations, eventFilter, categoryFilter, submissionFilter]);
 
   const table = useReactTable({
-    data: registrations,
+    data: filteredData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -306,19 +364,151 @@ export function RegistrationsDataTable({
     },
   });
 
+  const clearAllFilters = () => {
+    setEventFilter("all");
+    setCategoryFilter("all");
+    setSubmissionFilter("all");
+    table.getColumn("team_name")?.setFilterValue("");
+  };
+
+  const hasActiveFilters =
+    eventFilter !== "all" ||
+    categoryFilter !== "all" ||
+    submissionFilter !== "all" ||
+    (table.getColumn("team_name")?.getFilterValue() as string)?.length > 0;
+
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center gap-2">
-        <Input
-          placeholder="Filter by team name..."
-          value={
-            (table.getColumn("team_name")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("team_name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+      {/* Filters Section */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Search Input */}
+          <Input
+            placeholder="Filter by team name..."
+            value={
+              (table.getColumn("team_name")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("team_name")?.setFilterValue(event.target.value)
+            }
+            className="max-w-xs"
+          />
+
+          {/* Event Filter */}
+          <Select value={eventFilter} onValueChange={setEventFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="All Events" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Events</SelectItem>
+              {uniqueEvents.map((event) => (
+                <SelectItem key={event} value={event}>
+                  {event}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Category Filter */}
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {uniqueCategories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  <span className="capitalize">{category}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Submission Status Filter */}
+          <Select value={submissionFilter} onValueChange={setSubmissionFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Submissions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Submissions</SelectItem>
+              <SelectItem value="submitted">Files Submitted</SelectItem>
+              <SelectItem value="pending">Pending Submission</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Column Visibility */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id.replace(/_/g, " ")}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Clear Filters */}
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              onClick={clearAllFilters}
+              className="h-8 px-2 lg:px-3"
+            >
+              Clear filters
+              <X className="ml-2 h-4 w-4" />
+            </Button>
+          )}
+        </div>
+
+        {/* Active Filters Display */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap gap-2">
+            {eventFilter !== "all" && (
+              <Badge variant="secondary" className="gap-1">
+                Event: {eventFilter}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() => setEventFilter("all")}
+                />
+              </Badge>
+            )}
+            {categoryFilter !== "all" && (
+              <Badge variant="secondary" className="gap-1 capitalize">
+                Category: {categoryFilter}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() => setCategoryFilter("all")}
+                />
+              </Badge>
+            )}
+            {submissionFilter !== "all" && (
+              <Badge variant="secondary" className="gap-1">
+                Submission: {submissionFilter}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() => setSubmissionFilter("all")}
+                />
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
       <div className="rounded-md border">
         <Table>
@@ -372,9 +562,34 @@ export function RegistrationsDataTable({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredRowModel().rows.length} registration(s) total
+          Showing {table.getFilteredRowModel().rows.length} of{" "}
+          {registrations.length} registration(s)
         </div>
-        <div className="space-x-2">
+        <div className="flex items-center space-x-2">
+          <p className="text-sm font-medium">Rows per page</p>
+          <Select
+            value={`${table.getState().pagination.pageSize}`}
+            onValueChange={(value) => {
+              table.setPageSize(Number(value));
+            }}
+          >
+            <SelectTrigger className="h-8 w-[70px]">
+              <SelectValue placeholder={table.getState().pagination.pageSize} />
+            </SelectTrigger>
+            <SelectContent side="top">
+              {[10, 20, 30, 40, 50, 100].map((pageSize) => (
+                <SelectItem key={pageSize} value={`${pageSize}`}>
+                  {pageSize}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="text-sm font-medium">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </div>
           <Button
             variant="outline"
             size="sm"
