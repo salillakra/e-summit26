@@ -9,43 +9,12 @@ import Image from "next/image";
 
 export default function Sponsorship() {
   const sponsors = IMAGES.sponsors;
-  const currentSponsors: LogoItem[] = [
-    {
-      src: "/sponsors/651b9c8fa3255cf8ca0c191f_EazyDiner Logo Text 1.png",
-      alt: "EazyDiner",
-    },
-    { src: "/sponsors/Balshali TMT English-02 1.png", alt: "Balshali TMT" },
-    { src: "/sponsors/Brown - 2 (1) 1.png", alt: "Brown" },
-    { src: "/sponsors/E-SUMMIT'26 EVENTS-10 1.png", alt: "E-Summit Events" },
-    { src: "/sponsors/EEBj409UYAAA6UC 1.png", alt: "Sponsor Logo" },
-    { src: "/sponsors/EaseMyTrip_Logo 1.png", alt: "EaseMyTrip" },
-    { src: "/sponsors/Groovenexus 1.png", alt: "Groovenexus" },
-    { src: "/sponsors/Salts-Future of Wellness 1.png", alt: "Salts" },
-    { src: "/sponsors/Samford Logo-06 1.png", alt: "Samford" },
-    {
-      src: "/sponsors/Screenshot 2026-02-08 at 5.15.40 PM 1.png",
-      alt: "Sponsor Logo",
-    },
-    {
-      src: "/sponsors/Screenshot 2026-02-08 at 5.16.03 PM 1.png",
-      alt: "Sponsor Logo",
-    },
-    { src: "/sponsors/Waffle_Co 1.png", alt: "Waffle Co" },
-    {
-      src: "/sponsors/WhatsApp Image 2026-02-07 at 00.46.44 1.png",
-      alt: "Sponsor Logo",
-    },
-    { src: "/sponsors/bmw 1.png", alt: "BMW" },
-    { src: "/sponsors/brew_truck 1.png", alt: "Brew Truck" },
-    { src: "/sponsors/cuku cafe 1.png", alt: "Cuku Cafe" },
-    { src: "/sponsors/image 57.png", alt: "Sponsor Logo" },
-    { src: "/sponsors/images-14 1.png", alt: "Sponsor Logo" },
-    { src: "/sponsors/inext 1.png", alt: "Inext" },
-    { src: "/sponsors/logo sy 4 1.png", alt: "Sponsor Logo" },
-    { src: "/sponsors/titanium 1.png", alt: "Titanium" },
-    { src: "/sponsors/unnamed (1) 1.png", alt: "Sponsor Logo" },
-    { src: "/sponsors/weebes 1.png", alt: "Weebes" },
-  ];
+
+  // Generate sponsors array dynamically from all 35 sponsor images
+  const currentSponsors: LogoItem[] = Array.from({ length: 33 }, (_, i) => ({
+    src: `/sponsors/sponsor-${String(i + 1).padStart(2, "0")}.png`,
+    alt: `Sponsor ${i + 1}`,
+  }));
 
   return (
     <section id="sponsorship" className="w-full bg-black text-white">
@@ -75,11 +44,11 @@ export default function Sponsorship() {
             <div className="relative z-10 py-12 sm:py-16">
               <LogoLoop
                 logos={currentSponsors}
-                speed={40}
+                speed={30}
                 logoHeight={100}
                 gap={48}
                 pauseOnHover
-                scaleOnHover
+                scaleOnHover={false}
                 renderItem={(item) => {
                   if ("src" in item) {
                     return (
@@ -89,8 +58,13 @@ export default function Sponsorship() {
                           alt={item.alt || "Sponsor"}
                           width={200}
                           height={100}
-                          className="h-16 w-auto object-contain mix-blend-screen opacity-90 hover:opacity-100 transition-all duration-300"
-                          style={{ filter: "brightness(1.2) contrast(1.1)" }}
+                          priority
+                          unoptimized
+                          className="h-16 w-auto object-contain mix-blend-screen opacity-90 transition-opacity duration-300"
+                          style={{
+                            filter: "brightness(1.2) contrast(1.1)",
+                            willChange: "auto",
+                          }}
                         />
                       </div>
                     );

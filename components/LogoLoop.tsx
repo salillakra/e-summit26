@@ -171,7 +171,7 @@ const useAnimationLoop = (
       }
 
       const deltaTime =
-        Math.max(0, timestamp - lastTimestampRef.current) / 1000;
+        Math.max(0, Math.min(timestamp - lastTimestampRef.current, 100)) / 1000;
       lastTimestampRef.current = timestamp;
 
       const target =
@@ -186,9 +186,10 @@ const useAnimationLoop = (
         nextOffset = ((nextOffset % seqSize) + seqSize) % seqSize;
         offsetRef.current = nextOffset;
 
+        const roundedOffset = Math.round(offsetRef.current * 100) / 100;
         const transformValue = isVertical
-          ? `translate3d(0, ${-offsetRef.current}px, 0)`
-          : `translate3d(${-offsetRef.current}px, 0, 0)`;
+          ? `translate3d(0, ${-roundedOffset}px, 0)`
+          : `translate3d(${-roundedOffset}px, 0, 0)`;
         track.style.transform = transformValue;
       }
 
@@ -334,6 +335,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
           "[--logoloop-logoHeight:28px]",
           "[--logoloop-fadeColorAuto:#ffffff]",
           "dark:[--logoloop-fadeColorAuto:#0b0b0b]",
+          "[contain:layout_style_paint]",
           scaleOnHover && "py-[calc(var(--logoloop-logoHeight)*0.1)]",
           className,
         ),
@@ -531,6 +533,8 @@ export const LogoLoop = React.memo<LogoLoopProps>(
           className={cx(
             "flex will-change-transform select-none relative z-0",
             "motion-reduce:transform-none",
+            "[backface-visibility:hidden]",
+            "[transform-style:preserve-3d]",
             isVertical ? "flex-col h-max w-full" : "flex-row w-max",
           )}
           ref={trackRef}
