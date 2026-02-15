@@ -2,22 +2,14 @@
 
 // import Silk from "@/components/Silk";
 import GradientBlinds from "./GradientBlinds";
-import { m, useInView, useReducedMotion } from "framer-motion";
+import { m } from "framer-motion";
 import AnimatedBlurText from "@/components/AnimatedBlurText";
 import { useRef } from "react";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import ScrollBelow from "./ScrollBelow";
 
 export default function VenueHero() {
-  const prefersReducedMotion = useReducedMotion();
-  const pathname = usePathname();
   const sectionRef = useRef<HTMLElement | null>(null);
-  const isInView = useInView(sectionRef, { amount: 0.6 });
-  const silkActive = pathname === "/venue" && isInView;
-  const silkDpr: [number, number] = prefersReducedMotion ? [1, 1] : [1, 1.25];
-  const silkMaxFps = prefersReducedMotion ? undefined : 30;
-  const silkFrameloop = prefersReducedMotion ? "demand" : "always";
   const title = "VENUE";
   return (
     <section

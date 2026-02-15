@@ -277,7 +277,7 @@ export default function SpeakersGrid() {
                     {/* subtext */}
                     <div className="mt-2 text-xs sm:text-sm md:text-base text-white/65 leading-relaxed">
                       <span className="hidden sm:inline">
-                        We're curating a high-signal lineup across AI, startups,
+                        We&apos;re curating a high-signal lineup across AI, startups,
                         product, and growth. Follow along — the reveal starts
                         soon.
                       </span>

@@ -10,6 +10,13 @@ export interface UserTeam {
   event_name: string | null;
 }
 
+interface TeamRow {
+  id: string;
+  name: string;
+  slug: string;
+  event_id: string | null;
+}
+
 export interface UserWithDetails {
   id: string;
   email: string;
@@ -136,7 +143,10 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
   // Get all unique event IDs
   const eventIds = new Set(
     (teamMembers || [])
-      .map(tm => (tm.teams as any)?.event_id)
+      .flatMap(tm => {
+        const teams = Array.isArray(tm.teams) ? tm.teams : tm.teams ? [tm.teams] : [];
+        return teams.map((t: TeamRow) => t.event_id);
+      })
       .filter((id): id is string => id !== null && id !== undefined)
   );
 
@@ -155,21 +165,22 @@ export async function getAllUsersWithDetails(): Promise<UserWithDetails[]> {
   // Group team members by user_id
   const userTeamsMap = new Map<string, UserTeam[]>();
   (teamMembers || []).forEach(tm => {
-    const team = tm.teams as any;
-    if (!team) return;
+    const teams = Array.isArray(tm.teams) ? tm.teams : tm.teams ? [tm.teams] : [];
     
-    const userTeam: UserTeam = {
-      team_id: team.id,
-      team_name: team.name,
-      team_slug: team.slug,
-      event_id: team.event_id || null,
-      event_name: team.event_id ? (eventMap.get(team.event_id) || null) : null,
-    };
-    
-    if (!userTeamsMap.has(tm.user_id)) {
-      userTeamsMap.set(tm.user_id, []);
-    }
-    userTeamsMap.get(tm.user_id)!.push(userTeam);
+    teams.forEach((team: TeamRow) => {
+      const userTeam: UserTeam = {
+        team_id: team.id,
+        team_name: team.name,
+        team_slug: team.slug,
+        event_id: team.event_id || null,
+        event_name: team.event_id ? (eventMap.get(team.event_id) || null) : null,
+      };
+      
+      if (!userTeamsMap.has(tm.user_id)) {
+        userTeamsMap.set(tm.user_id, []);
+      }
+      userTeamsMap.get(tm.user_id)!.push(userTeam);
+    });
   });
 
   type RoleType = { id: string; name: string };

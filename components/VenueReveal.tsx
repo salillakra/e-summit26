@@ -477,12 +477,14 @@ export default function VenueReveal() {
                     shadow-[0_28px_120px_rgba(0,0,0,0.75)]
                   "
                 >
-                  <div className="relative aspect-[16/10] w-full">
-                    <img
+                  <div className="relative aspect-[16/10] w-full overflow-hidden">
+                    <Image
                       src={t.src}
                       alt={t.alt}
                       draggable={false}
                       className="h-full w-full object-cover"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                   </div>

@@ -5,7 +5,7 @@ import { serialize } from "next-mdx-remote/serialize";
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info, CheckCircle2, AlertCircle, Code, FileText } from "lucide-react";
+import { Info, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import remarkGfm from "remark-gfm";
 
 // Custom MDX components with theme styling

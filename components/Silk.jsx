@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable react/no-unknown-property */
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { forwardRef, useRef, useMemo, useLayoutEffect, useEffect } from "react";
 import { Color } from "three";
